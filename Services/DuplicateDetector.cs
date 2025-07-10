@@ -4,9 +4,8 @@ namespace MediaApp.Services;
 
 public class DuplicateDetector : IDuplicateDetector
 {
-    private readonly IFileService _fileService;
-
     public event EventHandler<ProgressEventArgs> ProgressChanged;
+    private readonly IFileService _fileService;
 
     public DuplicateDetector(IFileService fileService)
     {
@@ -37,6 +36,7 @@ public class DuplicateDetector : IDuplicateDetector
             }
 
             processedFiles++;
+            
             OnProgressChanged(new ProgressEventArgs
             {
                 ProgressPercentage = (processedFiles * 100) / totalFiles,

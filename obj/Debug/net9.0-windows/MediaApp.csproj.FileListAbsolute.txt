@@ -18,4 +18,6 @@ C:\Users\CRYSTAL\source\repos\MediaApp\obj\Debug\net9.0-windows\refint\MediaApp.
 C:\Users\CRYSTAL\source\repos\MediaApp\obj\Debug\net9.0-windows\MediaApp.pdb
 C:\Users\CRYSTAL\source\repos\MediaApp\obj\Debug\net9.0-windows\MediaApp.genruntimeconfig.cache
 C:\Users\CRYSTAL\source\repos\MediaApp\obj\Debug\net9.0-windows\ref\MediaApp.dll
-C:\Users\CRYSTAL\source\repos\MediaApp\obj\Debug\net9.0-windows\App.baml
+C:\Users\CRYSTAL\source\repos\MediaApp\obj\Debug\net9.0-windows\MediaApp.sourcelink.json
+C:\Users\CRYSTAL\source\repos\MediaApp\obj\Debug\net9.0-windows\AboutWindow.g.cs
+C:\Users\CRYSTAL\source\repos\MediaApp\obj\Debug\net9.0-windows\AboutWindow.baml

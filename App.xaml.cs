@@ -8,7 +8,6 @@ public partial class App : Application
     {
         this.DispatcherUnhandledException += App_DispatcherUnhandledException;
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-            
         base.OnStartup(e);
     }
 
@@ -18,7 +17,6 @@ public partial class App : Application
             "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
         
         Console.WriteLine($"Dispatcher Exception: {e.Exception}");
-            
         e.Handled = true;
     }
 
@@ -26,7 +24,7 @@ public partial class App : Application
     {
         var exception = e.ExceptionObject as Exception;
         MessageBox.Show($"Критична помилка: {exception?.Message}", 
-            "Критична помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+            "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
         
         Console.WriteLine($"Unhandled Exception: {exception}");
     }

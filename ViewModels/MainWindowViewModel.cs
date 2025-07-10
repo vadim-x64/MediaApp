@@ -11,6 +11,7 @@ namespace MediaApp.ViewModels;
 
 public class MainWindowViewModel : INotifyPropertyChanged
 {
+    public ICommand DeleteDuplicatesCommand { get; private set; }
     private readonly IFileService _fileService;
     private readonly IDuplicateDetector _duplicateDetector;
     private ObservableCollection<MediaFile> _mediaFiles;
@@ -26,9 +27,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     private Visibility _resultVisibility;
     private System.Windows.Media.Brush _resultTextColor;
     private string _fileCountText;
-
-    public ICommand DeleteDuplicatesCommand { get; private set; }
-
+    
     public MainWindowViewModel(IFileService fileService, IDuplicateDetector duplicateDetector)
     {
         _fileService = fileService ?? throw new ArgumentNullException(nameof(fileService));
@@ -75,7 +74,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     {
         if (MediaFiles?.Count > 0)
         {
-            FileCountText = $"Додано файлів: {MediaFiles.Count}";
+            FileCountText = $"Елементів: {MediaFiles.Count}";
         }
         else
         {
@@ -209,6 +208,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     {
         if (filePaths == null || filePaths.Length == 0)
             return;
+        
         try
         {
             IsProcessing = true;
@@ -217,13 +217,15 @@ public class MainWindowViewModel : INotifyPropertyChanged
             ProgressPercentageText = "0%";
             ProgressText = "Завантаження файлів...";
             ResultVisibility = Visibility.Collapsed;
+            
             var duplicateCheckResult = await CheckForDuplicatesBeforeAdding(filePaths);
 
             if (duplicateCheckResult.HasIdenticalFiles)
             {
                 MessageBox.Show(
                     $"Файли вже додано до списку:\n{string.Join("\n", duplicateCheckResult.IdenticalFiles)}",
-                    "Файли вже додано", MessageBoxButton.OK, MessageBoxImage.Information);
+                    "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
+                
                 if (duplicateCheckResult.FilesToProcess.Count == 0)
                 {
                     ProgressVisibility = Visibility.Collapsed;
@@ -237,13 +239,16 @@ public class MainWindowViewModel : INotifyPropertyChanged
                 var conflictMessage = "Виявлено файли з однаковими іменами, але різним вмістом:\n" +
                                       string.Join("\n", duplicateCheckResult.ConflictingFiles) +
                                       "\n\nБажаєте замінити існуючі файли новими?";
-                var result = MessageBox.Show(conflictMessage, "Конфлікт файлів",
+                
+                var result = MessageBox.Show(conflictMessage, "Підтвердження",
                     MessageBoxButton.YesNo, MessageBoxImage.Question);
+                
                 if (result == MessageBoxResult.Yes)
                 {
                     foreach (var conflictFile in duplicateCheckResult.ConflictingFiles)
                     {
                         var existingFile = MediaFiles.FirstOrDefault(f => f.FileName == conflictFile);
+                        
                         if (existingFile != null)
                         {
                             MediaFiles.Remove(existingFile);
@@ -266,7 +271,8 @@ public class MainWindowViewModel : INotifyPropertyChanged
                 {
                     var message = "Наступні файли не підтримуються і не були додані:\n\n" +
                                   string.Join("\n", loadResult.UnsupportedFiles);
-                    MessageBox.Show(message, "Непідтримуваний тип файлу", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    
+                    MessageBox.Show(message, "Попередження", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
 
                 foreach (var file in loadResult.LoadedFiles)
@@ -311,6 +317,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
                 else
                 {
                     var existingHash = existingFile.Hash;
+                    
                     if (string.IsNullOrEmpty(existingHash))
                     {
                         existingHash = await _fileService.CalculateFileHashAsync(existingFile.FilePath);
@@ -368,13 +375,13 @@ public class MainWindowViewModel : INotifyPropertyChanged
             {
                 var duplicateGroups = _duplicateDetector.GetDuplicateGroups(updatedFiles);
                 ResultMessage =
-                    $"Виявлено {duplicateCount} дублікатів у {duplicateGroups.Count} групах. Дублікати виділено червоним кольором.";
+                    $"Виявлено {duplicateCount} дублікатів у {duplicateGroups.Count} групах";
                 ResultTextColor = System.Windows.Media.Brushes.Red;
                 ResultVisibility = Visibility.Visible;
             }
             else
             {
-                ResultMessage = "Дублікати не виявлено.";
+                ResultMessage = "Дублікати не виявлено";
                 ResultTextColor = System.Windows.Media.Brushes.Green;
                 ResultVisibility = Visibility.Visible;
             }
@@ -394,14 +401,15 @@ public class MainWindowViewModel : INotifyPropertyChanged
     {
         if (!MediaFiles.Any(f => f.IsDuplicate))
         {
-            MessageBox.Show("Дублікати не виявлено.", "Немає дублікатів", MessageBoxButton.OK,
+            MessageBox.Show("Дублікати не виявлено", "Інформація", MessageBoxButton.OK,
                 MessageBoxImage.Information);
+            
             return;
         }
 
         var confirmResult = MessageBox.Show(
-            "Ви впевнені, що хочете видалити всі виявлені дублікати файлів, залишивши лише один найкращої якості у кожній групі?",
-            "Підтвердження видалення", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            "Ви впевнені, що хочете видалити всі виявлені дублікати файлів?",
+            "Попередження", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
         if (confirmResult != MessageBoxResult.Yes)
         {
@@ -442,7 +450,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
                     catch (Exception ex)
                     {
                         MessageBox.Show($"Помилка при видаленні файлу {fileToDelete.FileName}: {ex.Message}",
-                            "Помилка видалення", MessageBoxButton.OK, MessageBoxImage.Error);
+                            "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
 
                     ProgressValue = (deletedCount * 100) / totalDuplicatesToDelete;
@@ -465,7 +473,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             }
             else
             {
-                ResultMessage = "Дублікати не виявлено.";
+                ResultMessage = "Дублікати не виявлено";
                 ResultTextColor = System.Windows.Media.Brushes.Green;
                 ResultVisibility = Visibility.Visible;
             }

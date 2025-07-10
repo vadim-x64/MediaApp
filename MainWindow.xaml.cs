@@ -9,6 +9,7 @@ using MediaApp.Services;
 using MediaApp.ViewModels;
 using System.Globalization;
 using System.Windows.Data;
+using System.Windows.Media.Imaging;
 
 namespace MediaApp
 {
@@ -26,12 +27,19 @@ namespace MediaApp
             DataContext = _viewModel;
             this.Closing += Window_Closing;
         }
+        
+        private void AboutMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var aboutWindow = new AboutWindow();
+            aboutWindow.Owner = this;
+            aboutWindow.ShowDialog();
+        }
 
         private async void SelectFilesButton_Click(object sender, RoutedEventArgs e)
         {
             var openFileDialog = new OpenFileDialog
             {
-                Title = "Виберіть медіафайли",
+                Title = "Відкрити",
                 Multiselect = true,
                 Filter =
                     "Медіафайли|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tiff;*.webp;*.mp4;*.avi;*.mov;*.mkv;*.wmv;*.flv;*.webm;*.m4v|" +
@@ -56,7 +64,7 @@ namespace MediaApp
             if (_viewModel.MediaFiles?.Any() == true)
             {
                 var result = MessageBox.Show("Ви впевнені, що хочете очистити список файлів?",
-                    "Підтвердження очистки", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    "Підтвердження", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
                 if (result == MessageBoxResult.Yes)
                 {
@@ -90,7 +98,7 @@ namespace MediaApp
                     else
                     {
                         MessageBox.Show($"Файл не знайдено: {selectedFile.FilePath}", 
-                            "Помилка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            "Попередження", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
                 catch (Exception ex)
@@ -104,7 +112,7 @@ namespace MediaApp
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             var result = MessageBox.Show("Ви впевнені, що хочете закрити програму?",
-                "Підтвердження закриття", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                "Підтвердження", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result == MessageBoxResult.No)
             {
@@ -127,8 +135,7 @@ namespace MediaApp
         
         private void Grid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.OriginalSource == sender || 
-                (e.OriginalSource is FrameworkElement fe && fe.DataContext == DataContext))
+            if (e.OriginalSource == sender || (e.OriginalSource is FrameworkElement fe && fe.DataContext == DataContext))
             {
                 FileListBox.SelectedItem = null;
                 Keyboard.ClearFocus();
@@ -144,6 +151,7 @@ namespace MediaApp
                     Clipboard.SetText(filePath);
             
                     var parentGrid = button.Parent as Grid;
+                    
                     if (parentGrid != null)
                     {
                         var indicator = parentGrid.Children.OfType<TextBlock>()
@@ -169,8 +177,6 @@ namespace MediaApp
                 }
             }
         }
-
-        #region Drag and Drop Support
 
         private void FileListBox_DragEnter(object sender, DragEventArgs e)
         {
@@ -236,8 +242,6 @@ namespace MediaApp
                 _dragOverlay.Visibility = Visibility.Collapsed;
             }
         }
-
-        #endregion
     }
     
     public class GreaterThanZeroConverter : IValueConverter
