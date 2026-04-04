@@ -47,7 +47,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
         _duplicateDetector.ProgressChanged += OnDuplicateDetectorProgressChanged;
         DeleteDuplicatesCommand = new RelayCommand(async () => await ExecuteDeleteDuplicatesAsync(), () => CanDeleteDuplicates);
     }
-
+ 
     public string FileCountText
     {
         get => _fileCountText;
@@ -57,7 +57,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public ObservableCollection<MediaFile> MediaFiles
     {
         get => _mediaFiles;
@@ -69,7 +69,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             UpdateButtonStates();
         }
     }
-
+ 
     private void UpdateFileCountText()
     {
         if (MediaFiles?.Count > 0)
@@ -81,7 +81,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             FileCountText = "Файли не додано";
         }
     }
-
+ 
     private void UpdateButtonStates()
     {
         var hasFiles = MediaFiles?.Any() == true;
@@ -92,7 +92,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             MediaFiles.Any(f => f.IsDuplicate);
         (DeleteDuplicatesCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
-
+ 
     public bool CanDeleteDuplicates
     {
         get => _canDeleteDuplicates;
@@ -102,7 +102,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public bool CanCheckDuplicates
     {
         get => _canCheckDuplicates;
@@ -112,7 +112,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public bool CanClearFiles
     {
         get => _canClearFiles;
@@ -122,7 +122,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public Visibility ProgressVisibility
     {
         get => _progressVisibility;
@@ -132,7 +132,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public int ProgressValue
     {
         get => _progressValue;
@@ -142,7 +142,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public string ProgressPercentageText
     {
         get => _progressPercentageText;
@@ -152,7 +152,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public string ProgressText
     {
         get => _progressText;
@@ -162,7 +162,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public bool IsProcessing
     {
         get => _isProcessing;
@@ -173,7 +173,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             UpdateButtonStates();
         }
     }
-
+ 
     public string ResultMessage
     {
         get => _resultMessage;
@@ -183,7 +183,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public Visibility ResultVisibility
     {
         get => _resultVisibility;
@@ -193,7 +193,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public System.Windows.Media.Brush ResultTextColor
     {
         get => _resultTextColor;
@@ -203,7 +203,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+ 
     public async Task LoadMediaFilesAsync(string[] filePaths)
     {
         if (filePaths == null || filePaths.Length == 0)
@@ -219,7 +219,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             ResultVisibility = Visibility.Collapsed;
             
             var duplicateCheckResult = await CheckForDuplicatesBeforeAdding(filePaths);
-
+ 
             if (duplicateCheckResult.HasIdenticalFiles)
             {
                 MessageBox.Show(
@@ -233,40 +233,11 @@ public class MainWindowViewModel : INotifyPropertyChanged
                     return;
                 }
             }
-
-            if (duplicateCheckResult.HasConflictingFiles)
-            {
-                var conflictMessage = "Виявлено файли з однаковими іменами, але різним вмістом:\n" +
-                                      string.Join("\n", duplicateCheckResult.ConflictingFiles) +
-                                      "\n\nБажаєте замінити існуючі файли новими?";
-                
-                var result = MessageBox.Show(conflictMessage, "Підтвердження",
-                    MessageBoxButton.YesNo, MessageBoxImage.Question);
-                
-                if (result == MessageBoxResult.Yes)
-                {
-                    foreach (var conflictFile in duplicateCheckResult.ConflictingFiles)
-                    {
-                        var existingFile = MediaFiles.FirstOrDefault(f => f.FileName == conflictFile);
-                        
-                        if (existingFile != null)
-                        {
-                            MediaFiles.Remove(existingFile);
-                        }
-                    }
-                }
-                else
-                {
-                    duplicateCheckResult.FilesToProcess = duplicateCheckResult.FilesToProcess
-                        .Where(path => !duplicateCheckResult.ConflictingFiles.Contains(Path.GetFileName(path)))
-                        .ToList();
-                }
-            }
-
+ 
             if (duplicateCheckResult.FilesToProcess.Count > 0)
             {
                 var loadResult = await _fileService.LoadMediaFilesAsync(duplicateCheckResult.FilesToProcess.ToArray());
-
+ 
                 if (loadResult.UnsupportedFiles.Any())
                 {
                     var message = "Наступні файли не підтримуються і не були додані:\n\n" +
@@ -274,16 +245,16 @@ public class MainWindowViewModel : INotifyPropertyChanged
                     
                     MessageBox.Show(message, "Попередження", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-
+ 
                 foreach (var file in loadResult.LoadedFiles)
                 {
                     MediaFiles.Add(file);
                 }
-
+ 
                 UpdateFileCountText();
                 UpdateButtonStates();
             }
-
+ 
             await Task.Delay(1000);
             ProgressVisibility = Visibility.Collapsed;
             ProgressText = "Файли завантажено";
@@ -298,58 +269,35 @@ public class MainWindowViewModel : INotifyPropertyChanged
             IsProcessing = false;
         }
     }
-
-    private async Task<DuplicateCheckResult> CheckForDuplicatesBeforeAdding(string[] filePaths)
+ 
+    private Task<DuplicateCheckResult> CheckForDuplicatesBeforeAdding(string[] filePaths)
     {
         var result = new DuplicateCheckResult();
-
+ 
         foreach (var filePath in filePaths)
         {
-            var fileName = Path.GetFileName(filePath);
-            var existingFile = MediaFiles.FirstOrDefault(f => f.FileName == fileName);
-
+            var existingFile = MediaFiles.FirstOrDefault(f => f.FilePath == filePath);
+ 
             if (existingFile != null)
             {
-                if (existingFile.FilePath == filePath)
-                {
-                    result.IdenticalFiles.Add(fileName);
-                }
-                else
-                {
-                    var existingHash = existingFile.Hash;
-                    
-                    if (string.IsNullOrEmpty(existingHash))
-                    {
-                        existingHash = await _fileService.CalculateFileHashAsync(existingFile.FilePath);
-                        existingFile.Hash = existingHash;
-                    }
-
-                    var newFileHash = await _fileService.CalculateFileHashAsync(filePath);
-
-                    if (existingHash != newFileHash)
-                    {
-                        result.ConflictingFiles.Add(fileName);
-                    }
-                    else
-                    {
-                        result.IdenticalFiles.Add(fileName);
-                    }
-                }
+                // Точно той самий шлях — файл вже додано
+                result.IdenticalFiles.Add(Path.GetFileName(filePath));
             }
             else
             {
+                // Інший шлях — додаємо незалежно від назви
                 result.FilesToProcess.Add(filePath);
             }
         }
-
-        return result;
+ 
+        return Task.FromResult(result);
     }
-
+ 
     public async Task CheckDuplicatesAsync()
     {
         if (!MediaFiles.Any())
             return;
-
+ 
         try
         {
             IsProcessing = true;
@@ -358,19 +306,19 @@ public class MainWindowViewModel : INotifyPropertyChanged
             ProgressPercentageText = "0%";
             ProgressText = "Перевірка дублікатів...";
             ResultVisibility = Visibility.Collapsed;
-
+ 
             foreach (var file in MediaFiles)
             {
                 file.IsDuplicate = false;
             }
-
+ 
             var updatedFiles = await _duplicateDetector.DetectDuplicatesAsync(MediaFiles.ToList());
             var duplicateCount = updatedFiles.Count(f => f.IsDuplicate);
-
+ 
             ProgressText = "Перевірка завершена";
             await Task.Delay(1000);
             ProgressVisibility = Visibility.Collapsed;
-
+ 
             if (duplicateCount > 0)
             {
                 var duplicateGroups = _duplicateDetector.GetDuplicateGroups(updatedFiles);
@@ -396,7 +344,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             IsProcessing = false;
         }
     }
-
+ 
     private async Task ExecuteDeleteDuplicatesAsync()
     {
         if (!MediaFiles.Any(f => f.IsDuplicate))
@@ -406,16 +354,16 @@ public class MainWindowViewModel : INotifyPropertyChanged
             
             return;
         }
-
+ 
         var confirmResult = MessageBox.Show(
             "Ви впевнені, що хочете видалити всі виявлені дублікати файлів?",
             "Попередження", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
+ 
         if (confirmResult != MessageBoxResult.Yes)
         {
             return;
         }
-
+ 
         try
         {
             IsProcessing = true;
@@ -424,17 +372,17 @@ public class MainWindowViewModel : INotifyPropertyChanged
             ProgressPercentageText = "0%";
             ProgressText = "Видалення дублікатів...";
             ResultVisibility = Visibility.Collapsed;
-
+ 
             var duplicateGroups = _duplicateDetector.GetDuplicateGroups(MediaFiles.ToList());
             var totalDuplicatesToDelete = duplicateGroups.Sum(g => g.Count - 1);
             var deletedCount = 0;
-
+ 
             foreach (var group in duplicateGroups)
             {
                 var bestFile = group.OrderByDescending(f => f.FileSize).FirstOrDefault();
-
+ 
                 if (bestFile == null) continue;
-
+ 
                 foreach (var fileToDelete in group.Where(f => f != bestFile))
                 {
                     try
@@ -452,24 +400,30 @@ public class MainWindowViewModel : INotifyPropertyChanged
                         MessageBox.Show($"Помилка при видаленні файлу {fileToDelete.FileName}: {ex.Message}",
                             "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-
+ 
                     ProgressValue = (deletedCount * 100) / totalDuplicatesToDelete;
                     ProgressPercentageText = $"{ProgressValue}%";
                     ProgressText = $"Видалення дублікатів... ({deletedCount}/{totalDuplicatesToDelete})";
                     await Task.Delay(10);
                 }
             }
-
+ 
             UpdateFileCountText();
             UpdateButtonStates();
-
+ 
             ProgressText = "Видалення завершено";
             await Task.Delay(1000);
             ProgressVisibility = Visibility.Collapsed;
-
+ 
             if (deletedCount > 0)
             {
-                await CheckDuplicatesAsync();
+                // Знімаємо мітку дубліката з файлів що залишились
+                foreach (var file in MediaFiles)
+                    file.IsDuplicate = false;
+ 
+                ResultMessage = $"Видалено {deletedCount} дублікат(ів). Дублікатів більше немає.";
+                ResultTextColor = System.Windows.Media.Brushes.Green;
+                ResultVisibility = Visibility.Visible;
             }
             else
             {
@@ -488,7 +442,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             IsProcessing = false;
         }
     }
-
+ 
     public void ClearFiles()
     {
         if (MediaFiles?.Any() == true)
@@ -499,7 +453,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             ResultVisibility = Visibility.Collapsed;
         }
     }
-
+ 
     private void OnFileServiceProgressChanged(object sender, ProgressEventArgs e)
     {
         Application.Current.Dispatcher.Invoke(() =>
@@ -509,7 +463,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
             ProgressText = $"Завантаження файлів... ({e.CurrentFileIndex}/{e.TotalFiles})";
         });
     }
-
+ 
     private void OnDuplicateDetectorProgressChanged(object sender, ProgressEventArgs e)
     {
         Application.Current.Dispatcher.Invoke(() =>
@@ -519,9 +473,9 @@ public class MainWindowViewModel : INotifyPropertyChanged
             ProgressText = $"Перевірка дублікатів... ({e.CurrentFileIndex}/{e.TotalFiles})";
         });
     }
-
+ 
     public event PropertyChangedEventHandler PropertyChanged;
-
+ 
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
