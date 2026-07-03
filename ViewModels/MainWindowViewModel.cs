@@ -215,6 +215,13 @@ public class MainWindowViewModel : INotifyPropertyChanged
  
     public async Task LoadMediaFilesAsync(string[] filePaths)
     {
+        if (IsProcessing)
+        {
+            MessageBox.Show("Будь ласка, дочекайтеся завершення поточного процесу перед додаванням нових файлів.",
+                "Процес триває", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        
         if (filePaths == null || filePaths.Length == 0)
             return;
         
@@ -305,6 +312,13 @@ public class MainWindowViewModel : INotifyPropertyChanged
  
     public async Task CheckDuplicatesAsync()
     {
+        if (IsProcessing)
+        {
+            MessageBox.Show("Будь ласка, дочекайтеся завершення поточного процесу.",
+                "Процес триває", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        
         if (!MediaFiles.Any())
             return;
  
@@ -455,6 +469,13 @@ public class MainWindowViewModel : INotifyPropertyChanged
  
     public void ClearFiles()
     {
+        if (IsProcessing)
+        {
+            MessageBox.Show("Будь ласка, дочекайтеся завершення поточного процесу.",
+                "Процес триває", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+        
         if (MediaFiles?.Any() == true)
         {
             MediaFiles.Clear();
