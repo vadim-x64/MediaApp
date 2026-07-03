@@ -8,7 +8,7 @@ public partial class AboutWindow : Window
     {
         InitializeComponent();
     }
-    
+
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
         this.Close();

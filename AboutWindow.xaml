@@ -6,16 +6,16 @@
         xmlns:local="clr-namespace:MediaApp"
         WindowState="Normal"
         WindowStartupLocation="CenterScreen"
-        Background="#FFFFFF"
+        Background="{StaticResource ThemeBg}"
         mc:Ignorable="d"
         Title="Про програму" Height="500" Width="800"
         Icon="Resources/icon.ico">
-        
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
         <Grid Margin="30">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,30">
@@ -23,280 +23,299 @@
                 <TextBlock Text="MediaApp"
                            FontSize="36"
                            FontWeight="Bold"
-                           Foreground="#333333"
-                           HorizontalAlignment="Center"/>
+                           Foreground="{StaticResource TextPrimary}"
+                           HorizontalAlignment="Center" />
                 <TextBlock Text="Менеджер медіафайлів з пошуком дублікатів"
                            FontSize="16"
-                           Foreground="#666666"
+                           Foreground="{StaticResource TextSecondary}"
                            HorizontalAlignment="Center"
-                           Margin="0,5,0,0"/>
+                           Margin="0,5,0,0" />
                 <TextBlock Text="Версія 1.0"
                            FontSize="14"
-                           Foreground="#999999"
+                           Foreground="{StaticResource TextSecondary}"
                            HorizontalAlignment="Center"
-                           Margin="0,10,0,0"/>
+                           Margin="0,10,0,0" />
             </StackPanel>
 
             <StackPanel Grid.Row="1">
 
-                <Border Background="#F8F9FA"
+                <Border Background="{StaticResource ThemeCardBg}"
                         BorderBrush="#E9ECEF"
                         BorderThickness="1"
-                        CornerRadius="0"
+                        CornerRadius="12"
                         Padding="20"
                         Margin="0,0,0,10">
                     <StackPanel>
                         <TextBlock Text="Про програму"
                                    FontSize="20"
                                    FontWeight="SemiBold"
-                                   Foreground="#333333"
-                                   Margin="0,0,0,15"/>
+                                   Foreground="{StaticResource TextPrimary}"
+                                   Margin="0,0,0,15" />
 
                         <TextBlock TextWrapping="Wrap"
                                    FontSize="14"
-                                   Foreground="#555555"
+                                   Foreground="{StaticResource TextSecondary}"
                                    LineHeight="22">
-                            <Run Text="MediaApp - інструмент для управління медіафайлами, який допомагає організувати колекцію зображень та відео. Програма автоматично виявляє дублікати файлів на основі їх змісту, використовуючи алгоритми хешування, що дозволяє звільнити місце на диску та підтримувати порядок у медіатеці. Дане рішення підтримує різноманітні формати зображень та відео, забезпечуючи зручне управління вашою медіатекою."/>
+                            <Run
+                                Text="MediaApp - інструмент для управління медіафайлами, який допомагає організувати колекцію зображень та відео. Програма автоматично виявляє дублікати файлів на основі їх змісту, використовуючи алгоритми хешування, що дозволяє звільнити місце на диску та підтримувати порядок у медіатеці. Дане рішення підтримує різноманітні формати зображень та відео, забезпечуючи зручне управління вашою медіатекою." />
                         </TextBlock>
                     </StackPanel>
                 </Border>
 
-                <Border Background="#F8F9FA"
+                <Border Background="{StaticResource ThemeCardBg}"
                         BorderBrush="#E9ECEF"
                         BorderThickness="1"
-                        CornerRadius="0"
+                        CornerRadius="12"
                         Padding="20"
                         Margin="0,0,0,10">
                     <StackPanel>
                         <TextBlock Text="Основні можливості"
                                    FontSize="20"
                                    FontWeight="SemiBold"
-                                   Foreground="#333333"
-                                   Margin="0,0,0,15"/>
+                                   Foreground="{StaticResource TextPrimary}"
+                                   Margin="0,0,0,15" />
 
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" Margin="0,0,15,0">
                                 <TextBlock Text="🖼️ Підтримка форматів зображень:"
                                            FontWeight="SemiBold"
                                            FontSize="14"
-                                           Foreground="#333333"
-                                           Margin="0,0,0,5"/>
+                                           Foreground="{StaticResource TextPrimary}"
+                                           Margin="0,0,0,5" />
                                 <TextBlock Text="JPG, JPEG, PNG, GIF"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,3"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,3" />
                                 <TextBlock Text="BMP, TIFF, WebP"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,15"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,15" />
 
                                 <TextBlock Text="🎬 Підтримка відеоформатів:"
                                            FontWeight="SemiBold"
                                            FontSize="14"
-                                           Foreground="#333333"
-                                           Margin="0,0,0,5"/>
+                                           Foreground="{StaticResource TextPrimary}"
+                                           Margin="0,0,0,5" />
                                 <TextBlock Text="MP4, AVI, MOV, MKV"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,3"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,3" />
                                 <TextBlock Text="WMV, FLV, WebM, M4V"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,0"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,0" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="🔍 Розумний пошук дублікатів:"
                                            FontWeight="SemiBold"
                                            FontSize="14"
-                                           Foreground="#333333"
-                                           Margin="0,0,0,5"/>
+                                           Foreground="{StaticResource TextPrimary}"
+                                           Margin="0,0,0,5" />
                                 <TextBlock Text="Порівняння за вмістом файлів"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,3"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,3" />
                                 <TextBlock Text="MD5 хешування"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,15"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,15" />
 
                                 <TextBlock Text="🚀 Зручність використання:"
                                            FontWeight="SemiBold"
                                            FontSize="14"
-                                           Foreground="#333333"
-                                           Margin="0,0,0,5"/>
+                                           Foreground="{StaticResource TextPrimary}"
+                                           Margin="0,0,0,5" />
                                 <TextBlock Text="Drag &amp; Drop підтримка"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,3"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,3" />
                                 <TextBlock Text="Швидке копіювання шляхів"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,3"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,3" />
                                 <TextBlock Text="Автоматичне видалення дублікатів"
                                            FontSize="13"
-                                           Foreground="#666666"
-                                           Margin="10,0,0,0"/>
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Margin="10,0,0,0" />
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <Border Background="#F8F9FA"
+                <Border Background="{StaticResource ThemeCardBg}"
                         BorderBrush="#E9ECEF"
                         BorderThickness="1"
-                        CornerRadius="0"
+                        CornerRadius="12"
                         Padding="20"
                         Margin="0,0,0,10">
                     <StackPanel>
                         <TextBlock Text="Управління програмою"
                                    FontSize="20"
                                    FontWeight="SemiBold"
-                                   Foreground="#333333"
-                                   Margin="0,0,0,15"/>
+                                   Foreground="{StaticResource TextPrimary}"
+                                   Margin="0,0,0,15" />
                         <TextBlock Text="📁 'Файл'"
                                    FontWeight="SemiBold"
                                    FontSize="16"
-                                   Foreground="#333333"
-                                   Margin="0,0,0,10"/>
+                                   Foreground="{StaticResource TextPrimary}"
+                                   Margin="0,0,0,10" />
                         <Grid Margin="0,0,0,5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Відкрити" FontWeight="SemiBold" FontSize="14" Foreground="#555555"/>
-                            <TextBlock Grid.Column="1" Text="Додати файли до списку через діалог вибору" FontSize="14" Foreground="#666666" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="0" Text="Відкрити" FontWeight="SemiBold" FontSize="14"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Grid.Column="1" Text="Додати файли до списку через діалог вибору" FontSize="14"
+                                       Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#E9ECEF" Margin="0,5,0,5"/>
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,5,0,5" />
                         <Grid Margin="0,0,0,20">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Вийти" FontWeight="SemiBold" FontSize="14" Foreground="#555555"/>
-                            <TextBlock Grid.Column="1" Text="Закрити програму" FontSize="14" Foreground="#666666" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="0" Text="Вийти" FontWeight="SemiBold" FontSize="14"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Grid.Column="1" Text="Закрити програму" FontSize="14"
+                                       Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                         </Grid>
                         <TextBlock Text="🛠️ 'Інструменти'"
                                    FontWeight="SemiBold"
                                    FontSize="16"
-                                   Foreground="#333333"
-                                   Margin="0,0,0,10"/>
+                                   Foreground="{StaticResource TextPrimary}"
+                                   Margin="0,0,0,10" />
                         <Grid Margin="0,0,0,5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Перевірити" FontWeight="SemiBold" FontSize="14" Foreground="#555555"/>
-                            <TextBlock Grid.Column="1" Text="Запустити пошук дублікатів серед завантажених файлів" FontSize="14" Foreground="#666666" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="0" Text="Перевірити" FontWeight="SemiBold" FontSize="14"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Grid.Column="1" Text="Запустити пошук дублікатів серед завантажених файлів"
+                                       FontSize="14" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#E9ECEF" Margin="0,5,0,5"/>
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,5,0,5" />
                         <Grid Margin="0,0,0,5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Видалити дублікати" FontWeight="SemiBold" FontSize="14" Foreground="#555555"/>
-                            <TextBlock Grid.Column="1" Text="Автоматично видалити знайдені дублікати" FontSize="14" Foreground="#666666" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="0" Text="Видалити дублікати" FontWeight="SemiBold" FontSize="14"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Grid.Column="1" Text="Автоматично видалити знайдені дублікати" FontSize="14"
+                                       Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#E9ECEF" Margin="0,5,0,5"/>
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,5,0,5" />
                         <Grid Margin="0,0,0,20">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Очистити" FontWeight="SemiBold" FontSize="14" Foreground="#555555"/>
-                            <TextBlock Grid.Column="1" Text="Очистити список завантажених файлів" FontSize="14" Foreground="#666666" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="0" Text="Очистити" FontWeight="SemiBold" FontSize="14"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Grid.Column="1" Text="Очистити список завантажених файлів" FontSize="14"
+                                       Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                         </Grid>
                         <TextBlock Text="🎯 Додаткові можливості"
                                    FontWeight="SemiBold"
                                    FontSize="16"
-                                   Foreground="#333333"
-                                   Margin="0,0,0,10"/>
+                                   Foreground="{StaticResource TextPrimary}"
+                                   Margin="0,0,0,10" />
                         <Grid Margin="0,0,0,5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Drag &amp; Drop" FontWeight="SemiBold" FontSize="14" Foreground="#555555"/>
-                            <TextBlock Grid.Column="1" Text="Перетягніть файли прямо в робочу область" FontSize="14" Foreground="#666666" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="0" Text="Drag &amp; Drop" FontWeight="SemiBold" FontSize="14"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Grid.Column="1" Text="Перетягніть файли прямо в робочу область" FontSize="14"
+                                       Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#E9ECEF" Margin="0,5,0,5"/>
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,5,0,5" />
                         <Grid Margin="0,0,0,5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Копіювання шляху" FontWeight="SemiBold" FontSize="14" Foreground="#555555"/>
-                            <TextBlock Grid.Column="1" Text="Наведіть на файл та натисніть іконку 📋 для копіювання повного шляху" FontSize="14" Foreground="#666666" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="0" Text="Копіювання шляху" FontWeight="SemiBold" FontSize="14"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Grid.Column="1"
+                                       Text="Наведіть на файл та натисніть іконку 📋 для копіювання повного шляху"
+                                       FontSize="14" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                         </Grid>
-                        <Rectangle Height="1" Fill="#E9ECEF" Margin="0,5,0,5"/>
+                        <Rectangle Height="1" Fill="#E0E0E0" Margin="0,5,0,5" />
                         <Grid Margin="0,0,0,5">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150" />
+                                <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="Відкриття файлів" FontWeight="SemiBold" FontSize="14" Foreground="#555555"/>
-                            <TextBlock Grid.Column="1" Text="Подвійний клік по файлу відкриє його в програмі за замовчуванням" FontSize="14" Foreground="#666666" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="0" Text="Відкриття файлів" FontWeight="SemiBold" FontSize="14"
+                                       Foreground="{StaticResource TextPrimary}" />
+                            <TextBlock Grid.Column="1"
+                                       Text="Подвійний клік по файлу відкриє його в програмі за замовчуванням"
+                                       FontSize="14" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" />
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <Border Background="#E8F5E8"
-                        BorderBrush="#C3E6C3"
+                <Border Background="{StaticResource ThemeBlue}"
+                        BorderBrush="{StaticResource ThemeBlueAccent}"
                         BorderThickness="1"
-                        CornerRadius="0"
+                        CornerRadius="12"
                         Padding="20"
                         Margin="0,0,0,10">
                     <StackPanel>
                         <TextBlock Text="Як користуватися програмою"
                                    FontSize="20"
                                    FontWeight="SemiBold"
-                                   Foreground="#2D5A2D"
-                                   Margin="0,0,0,15"/>
+                                   Foreground="#1A5276"
+                                   Margin="0,0,0,15" />
                         <TextBlock Text="Завантажте файли:"
                                    FontWeight="SemiBold"
                                    FontSize="14"
-                                   Foreground="#2D5A2D"
-                                   Margin="0,0,0,5"/>
+                                   Foreground="#1A5276"
+                                   Margin="0,0,0,5" />
                         <TextBlock Text=" • Використайте меню 'Файл' → 'Відкрити' або перетягніть файли у вікно"
                                    FontSize="13"
-                                   Foreground="#4A6B4A"
-                                   Margin="0,0,0,10"/>
+                                   Foreground="#2980B9"
+                                   Margin="0,0,0,10" />
                         <TextBlock Text="Знайдіть дублікати:"
                                    FontWeight="SemiBold"
                                    FontSize="14"
-                                   Foreground="#2D5A2D"
-                                   Margin="0,0,0,5"/>
+                                   Foreground="#1A5276"
+                                   Margin="0,0,0,5" />
                         <TextBlock Text=" • Натисніть 'Інструменти' → 'Перевірити' для пошуку дублікатів"
                                    FontSize="13"
-                                   Foreground="#4A6B4A"
-                                   Margin="0,0,0,10"/>
+                                   Foreground="#2980B9"
+                                   Margin="0,0,0,10" />
                         <TextBlock Text="Видаліть дублікати:"
                                    FontWeight="SemiBold"
                                    FontSize="14"
-                                   Foreground="#2D5A2D"
-                                   Margin="0,0,0,5"/>
-                        <TextBlock Text=" • Використайте 'Інструменти' → 'Видалити дублікати' для автоматичного видалення"
-                                   FontSize="13"
-                                   Foreground="#4A6B4A"
-                                   Margin="0,0,0,15"/>
+                                   Foreground="#1A5276"
+                                   Margin="0,0,0,5" />
+                        <TextBlock
+                            Text=" • Використайте 'Інструменти' → 'Видалити дублікати' для автоматичного видалення"
+                            FontSize="13"
+                            Foreground="#2980B9"
+                            Margin="0,0,0,15" />
                         <TextBlock Text="💡 Порада: Дублікати виділяються червоним кольором у списку файлів"
                                    FontStyle="Italic"
                                    FontSize="13"
-                                   Foreground="#4A6B4A"/>
+                                   Foreground="#2980B9" />
                     </StackPanel>
                 </Border>
                 <TextBlock Text="MediaApp"
                            FontSize="12"
-                           Foreground="#999999"
+                           Foreground="{StaticResource TextSecondary}"
                            HorizontalAlignment="Center"
-                           Margin="0,20,0,0"/>
+                           Margin="0,20,0,0" />
             </StackPanel>
         </Grid>
     </ScrollViewer>
-    
 </Window>

@@ -3,6 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        
+        <SolidColorBrush x:Key="ThemeBg" Color="#FFFBF7" />
+        <SolidColorBrush x:Key="ThemeCardBg" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="ThemeBlue" Color="#E1F5FE" />
+        <SolidColorBrush x:Key="ThemeBlueAccent" Color="#81D4FA" />
+        <SolidColorBrush x:Key="ThemeBlueDark" Color="#29B6F6" />
+        <SolidColorBrush x:Key="TextPrimary" Color="#2C3E50" />
+        <SolidColorBrush x:Key="TextSecondary" Color="#7F8C8D" />
+        <SolidColorBrush x:Key="DuplicateBg" Color="#FFEBEE" />
+        <SolidColorBrush x:Key="DuplicateBorder" Color="#FFCDD2" />
     </Application.Resources>
 </Application>

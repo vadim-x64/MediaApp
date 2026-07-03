@@ -11,11 +11,12 @@ public partial class App : Application
         base.OnStartup(e);
     }
 
-    private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+    private void App_DispatcherUnhandledException(object sender,
+        System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
-        MessageBox.Show($"Виникла непередбачена помилка: {e.Exception.Message}", 
+        MessageBox.Show($"Виникла непередбачена помилка: {e.Exception.Message}",
             "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-        
+
         Console.WriteLine($"Dispatcher Exception: {e.Exception}");
         e.Handled = true;
     }
@@ -23,9 +24,9 @@ public partial class App : Application
     private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         var exception = e.ExceptionObject as Exception;
-        MessageBox.Show($"Критична помилка: {exception?.Message}", 
+        MessageBox.Show($"Критична помилка: {exception?.Message}",
             "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
-        
+
         Console.WriteLine($"Unhandled Exception: {exception}");
     }
 }

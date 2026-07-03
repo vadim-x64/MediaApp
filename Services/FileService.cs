@@ -7,16 +7,19 @@ namespace MediaApp.Services;
 public class FileService : IFileService
 {
     public event EventHandler<ProgressEventArgs> ProgressChanged;
-    private readonly string[] _supportedImageExtensions = { 
-        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".webp", ".jfif", 
-        ".svg", ".heic", ".heif", ".raw", ".cr2", ".nef", ".arw", ".dng", ".ico" 
+
+    private readonly string[] _supportedImageExtensions =
+    {
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".webp", ".jfif",
+        ".svg", ".heic", ".heif", ".raw", ".cr2", ".nef", ".arw", ".dng", ".ico"
     };
 
-    private readonly string[] _supportedVideoExtensions = { 
-        ".mp4", ".avi", ".mov", ".mkv", ".wmv", ".flv", ".webm", ".m4v", 
-        ".mpg", ".mpeg", ".m2v", ".ts", ".3gp", ".3g2", ".rm", ".vob" 
+    private readonly string[] _supportedVideoExtensions =
+    {
+        ".mp4", ".avi", ".mov", ".mkv", ".wmv", ".flv", ".webm", ".m4v",
+        ".mpg", ".mpeg", ".m2v", ".ts", ".3gp", ".3g2", ".rm", ".vob"
     };
-    
+
     public async Task<MediaFileLoadResult> LoadMediaFilesAsync(string[] filePaths)
     {
         var result = new MediaFileLoadResult();
@@ -41,7 +44,7 @@ public class FileService : IFileService
                     if (File.Exists(filePath))
                     {
                         var fileInfo = new FileInfo(filePath);
-                        
+
                         var mediaFile = new MediaFile
                         {
                             FilePath = filePath,
@@ -49,7 +52,7 @@ public class FileService : IFileService
                             FileSize = fileInfo.Length,
                             CreationTime = fileInfo.CreationTime
                         };
-                        
+
                         result.LoadedFiles.Add(mediaFile);
                     }
                 }
@@ -73,7 +76,7 @@ public class FileService : IFileService
             TotalFiles = totalFiles,
             CurrentFileName = "Завантаження завершено"
         });
-        
+
         return result;
     }
 
@@ -81,9 +84,9 @@ public class FileService : IFileService
     {
         if (string.IsNullOrEmpty(filePath))
             return false;
-        
+
         var extension = Path.GetExtension(filePath).ToLowerInvariant();
-        
+
         return _supportedImageExtensions.Contains(extension) ||
                _supportedVideoExtensions.Contains(extension);
     }
@@ -92,12 +95,12 @@ public class FileService : IFileService
     {
         if (string.IsNullOrEmpty(filePath))
             return MediaFileType.Unknown;
-        
+
         var extension = Path.GetExtension(filePath).ToLowerInvariant();
 
         if (_supportedImageExtensions.Contains(extension))
             return MediaFileType.Image;
-        
+
         if (_supportedVideoExtensions.Contains(extension))
             return MediaFileType.Video;
 

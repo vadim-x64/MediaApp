@@ -19,7 +19,7 @@ public class DuplicateDetector : IDuplicateDetector
 
         var totalFiles = mediaFiles.Count;
         var processedFiles = 0;
-        
+
         foreach (var file in mediaFiles)
         {
             if (string.IsNullOrEmpty(file.Hash))
@@ -36,7 +36,7 @@ public class DuplicateDetector : IDuplicateDetector
             }
 
             processedFiles++;
-            
+
             OnProgressChanged(new ProgressEventArgs
             {
                 ProgressPercentage = (processedFiles * 100) / totalFiles,
@@ -44,16 +44,16 @@ public class DuplicateDetector : IDuplicateDetector
                 TotalFiles = totalFiles,
                 CurrentFileName = file.FileName
             });
-            
+
             await Task.Delay(10);
         }
-        
+
         var duplicateGroups = mediaFiles
             .Where(f => !string.IsNullOrEmpty(f.Hash))
             .GroupBy(f => new { f.FileType, f.Hash })
             .Where(g => g.Count() > 1)
             .ToList();
-        
+
         foreach (var group in duplicateGroups)
         {
             foreach (var file in group)
@@ -69,7 +69,7 @@ public class DuplicateDetector : IDuplicateDetector
     {
         if (file1 == null || file2 == null)
             return false;
-        
+
         return file1.FileType == file2.FileType &&
                !string.IsNullOrEmpty(file1.Hash) &&
                !string.IsNullOrEmpty(file2.Hash) &&

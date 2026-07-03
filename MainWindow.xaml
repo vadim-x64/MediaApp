@@ -6,12 +6,45 @@
         xmlns:local="clr-namespace:MediaApp"
         WindowState="Normal"
         WindowStartupLocation="CenterScreen"
-        Background="#FFFFFF"
+        Background="{StaticResource ThemeBg}"
         mc:Ignorable="d"
-        Title="MediaApp" Height="500" Width="800"
+        Title="MediaApp" Height="550" Width="850"
         Icon="Resources/icon.ico"
         PreviewKeyDown="Window_PreviewKeyDown">
-    
+
+    <Window.Resources>
+        <Style TargetType="ListBoxItem">
+            <Setter Property="Background" Value="{StaticResource ThemeCardBg}" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Margin" Value="5,3" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderBrush" Value="#E0E0E0" />
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource ThemeBlue}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource ThemeBlueAccent}" />
+                </Trigger>
+                <DataTrigger Binding="{Binding IsDuplicate}" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DuplicateBg}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource DuplicateBorder}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="0" MouseLeftButtonDown="Grid_MouseLeftButtonDown" Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -22,13 +55,13 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Menu Grid.Row="1" Background="Transparent" Margin="0">
-            <MenuItem Header="Файл">
+        <Menu Grid.Row="1" Background="Transparent" Margin="5,5,5,10">
+            <MenuItem Header="Файл" Foreground="{StaticResource TextPrimary}">
                 <MenuItem x:Name="OpenMenuItem" Header="Відкрити" Click="SelectFilesButton_Click" />
                 <Separator />
                 <MenuItem Header="Вийти" Click="ExitMenuItem_Click" />
             </MenuItem>
-            <MenuItem Header="Інструменти">
+            <MenuItem Header="Інструменти" Foreground="{StaticResource TextPrimary}">
                 <MenuItem x:Name="CheckDuplicatesMenuItem" Header="Перевірити"
                           Click="CheckDuplicatesButton_Click"
                           IsEnabled="{Binding CanCheckDuplicates}" />
@@ -41,21 +74,21 @@
                           Click="ClearMenuItem_Click"
                           IsEnabled="{Binding CanClearFiles}" />
             </MenuItem>
-            <MenuItem Header="Довідка">
-                <MenuItem Header="Про програму" Click="AboutMenuItem_Click"/>
+            <MenuItem Header="Довідка" Foreground="{StaticResource TextPrimary}">
+                <MenuItem Header="Про програму" Click="AboutMenuItem_Click" />
             </MenuItem>
         </Menu>
 
         <ListBox Grid.Row="2"
                  x:Name="FileListBox"
                  ItemsSource="{Binding MediaFiles}"
-                 Background="#FFFFFF"
-                 BorderBrush="#CCCCCC"
-                 BorderThickness="0, 2, 0, 2"
-                 Margin="0"
+                 Background="Transparent"
+                 BorderThickness="0"
+                 Margin="10,0"
                  ScrollViewer.VerticalScrollBarVisibility="Visible"
-                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                 ScrollViewer.CanContentScroll="True"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 VirtualizingStackPanel.IsVirtualizing="True"
+                 VirtualizingStackPanel.VirtualizationMode="Recycling"
                  MouseDoubleClick="FileListBox_MouseDoubleClick"
                  AllowDrop="True"
                  Drop="FileListBox_Drop"
@@ -69,39 +102,32 @@
                             BorderThickness="{TemplateBinding BorderThickness}"
                             Background="{TemplateBinding Background}">
                         <Grid>
-                            <ScrollViewer x:Name="PART_ScrollViewer"
-                                          Focusable="false"
-                                          HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
-                                          VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}">
+                            <ScrollViewer x:Name="PART_ScrollViewer" Focusable="false">
                                 <ItemsPresenter />
                             </ScrollViewer>
-
                             <StackPanel x:Name="EmptyStateOverlay"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Opacity="0.5">
+                                        Opacity="0.6">
                                 <TextBlock Text="📁"
-                                           Foreground="#333333"
-                                           FontSize="60"
+                                           FontSize="64"
                                            HorizontalAlignment="Center"
-                                           Margin="0" />
-                                <TextBlock
-                                    Text="Перетягніть файли сюди або використайте меню 'Файл' → 'Відкрити'"
-                                    Foreground="#333333"
-                                    FontSize="18"
-                                    HorizontalAlignment="Center"
-                                    TextWrapping="Wrap"
-                                    TextAlignment="Center" />
+                                           Margin="0,0,0,15" />
+                                <TextBlock Text="Перетягніть медіафайли сюди&#x0a;або використайте меню «Файл»"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           FontSize="16"
+                                           HorizontalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           TextAlignment="Center" />
                             </StackPanel>
-
                             <Border x:Name="DragOverlay"
-                                    Background="#4000C851"
-                                    BorderBrush="#FF00C851"
+                                    Background="#4081D4FA"
+                                    BorderBrush="{StaticResource ThemeBlueAccent}"
                                     BorderThickness="2"
+                                    CornerRadius="8"
                                     Visibility="Collapsed">
                                 <StackPanel HorizontalAlignment="Center"
                                             VerticalAlignment="Center">
-                                    
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -122,7 +148,7 @@
 
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="5">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -131,21 +157,21 @@
 
                         <TextBlock Grid.Column="0"
                                    Text="{Binding FileTypeIcon}"
-                                   FontSize="14"
+                                   FontSize="16"
                                    VerticalAlignment="Center"
-                                   Margin="0,0,10,0" />
+                                   Margin="0,0,15,0" />
 
                         <TextBlock Grid.Column="1"
                                    Text="{Binding FilePath}"
-                                   FontSize="14"
+                                   FontSize="13"
+                                   Foreground="{StaticResource TextPrimary}"
                                    VerticalAlignment="Center"
-                                   TextWrapping="Wrap" />
+                                   TextTrimming="CharacterEllipsis" />
 
-                        <Grid Grid.Column="2"
-                              VerticalAlignment="Center"
-                              Margin="5, 0,0,0">
+                        <Grid Grid.Column="2" VerticalAlignment="Center" Margin="10,0,0,0">
                             <TextBlock x:Name="CopySuccessIndicator"
                                        Text="✔️"
+                                       Foreground="{StaticResource ThemeBlueDark}"
                                        FontSize="14"
                                        FontWeight="Bold"
                                        VerticalAlignment="Center"
@@ -153,8 +179,8 @@
                                        Visibility="Collapsed" />
 
                             <Button Content="📋"
-                                    ToolTip="Копіювати"
-                                    Foreground="#333333"
+                                    ToolTip="Копіювати шлях"
+                                    Foreground="{StaticResource TextSecondary}"
                                     FontSize="14"
                                     Background="Transparent"
                                     BorderThickness="0"
@@ -165,23 +191,19 @@
                                     Tag="{Binding FilePath}">
                                 <Button.Style>
                                     <Style TargetType="Button">
-                                        <Setter Property="Opacity" Value="0" />
+                                        <Setter Property="Opacity" Value="0.3" />
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                                            CornerRadius="0">
+                                                    <Border Background="{TemplateBinding Background}" CornerRadius="4">
                                                         <ContentPresenter HorizontalAlignment="Center"
                                                                           VerticalAlignment="Center" />
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="#FFE0E0E0" />
-                                                        </Trigger>
-                                                        <Trigger Property="IsPressed" Value="True">
-                                                            <Setter Property="Background" Value="#FFD0D0D0" />
+                                                            <Setter Property="Background"
+                                                                    Value="{StaticResource ThemeBlueAccent}" />
+                                                            <Setter Property="Foreground" Value="#FFFFFF" />
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -202,49 +224,38 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        
+
         <TextBlock Grid.Row="3"
                    Text="{Binding FileCountText}"
                    HorizontalAlignment="Center"
-                   FontSize="14"
-                   Foreground="#333333"
-                   Margin="10"
-                   FontWeight="Normal"/>
-        
-        <StackPanel Grid.Row="4" 
-                    Margin="20,5,20,5" 
-                    Visibility="{Binding ProgressVisibility}">
-            <TextBlock x:Name="ProgressText"
-                       Text="{Binding ProgressText}"
-                       Foreground="#333333"
+                   FontSize="13"
+                   Foreground="{StaticResource TextSecondary}"
+                   Margin="10" />
+
+        <StackPanel Grid.Row="4" Margin="20,5,20,10" Visibility="{Binding ProgressVisibility}">
+            <TextBlock Text="{Binding ProgressText}"
+                       Foreground="{StaticResource TextPrimary}"
                        HorizontalAlignment="Left"
-                       FontSize="14"
-                       FontWeight="Bold"
-                       Margin="0,0,0,10" />
-            
-            <ProgressBar x:Name="LoadingProgressBar"
-                         Height="20"
+                       FontSize="13"
+                       Margin="0,0,0,5" />
+
+            <ProgressBar Height="6"
                          Value="{Binding ProgressValue}"
-                         Minimum="0"
-                         Maximum="100"
-                         Background="#F0F0F0"
-                         BorderBrush="#CCCCCC"
-                         BorderThickness="1">
+                         Minimum="0" Maximum="100"
+                         Background="#E0E0E0"
+                         BorderThickness="0">
                 <ProgressBar.Style>
                     <Style TargetType="ProgressBar">
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ProgressBar">
-                                    <Border Background="{TemplateBinding Background}"
-                                            BorderBrush="{TemplateBinding BorderBrush}"
-                                            BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="0">
+                                    <Border Background="{TemplateBinding Background}" CornerRadius="3">
                                         <Grid>
-                                            <Rectangle Name="PART_Track" 
-                                                       Fill="{TemplateBinding Background}" />
-                                            <Rectangle Name="PART_Indicator" 
-                                                       Fill="#FF00C851" 
-                                                       HorizontalAlignment="Left" />
+                                            <Rectangle Name="PART_Track" Fill="Transparent" />
+                                            <Border Name="PART_Indicator"
+                                                    Background="{StaticResource ThemeBlueDark}"
+                                                    CornerRadius="3"
+                                                    HorizontalAlignment="Left" />
                                         </Grid>
                                     </Border>
                                 </ControlTemplate>
@@ -253,41 +264,16 @@
                     </Style>
                 </ProgressBar.Style>
             </ProgressBar>
-            
-            <TextBlock x:Name="ProgressPercentage"
-                       Text="{Binding ProgressPercentageText}"
-                       Foreground="#333333"
-                       HorizontalAlignment="Left"
-                       FontSize="14"
-                       FontWeight="Bold"
-                       Margin="0" />
         </StackPanel>
-        
+
         <TextBlock Grid.Row="5"
                    Text="{Binding ResultMessage}"
                    Visibility="{Binding ResultVisibility}"
                    Foreground="{Binding ResultTextColor}"
                    FontSize="14"
-                   FontWeight="Bold"
+                   FontWeight="SemiBold"
                    HorizontalAlignment="Center"
-                   TextAlignment="Center"
-                   Margin="20,5,20,10"
+                   Margin="20,0,20,15"
                    TextWrapping="Wrap" />
     </Grid>
-
-    <Window.Resources>
-        <Style TargetType="ListBoxItem">
-            <Setter Property="Background" Value="#FFFFFF" />
-            <Setter Property="Padding" Value="5" />
-            <Setter Property="Margin" Value="2" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="BorderBrush" Value="Transparent" />
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding IsDuplicate}" Value="True">
-                    <Setter Property="Background" Value="#FFE6E6" />
-                    <Setter Property="BorderBrush" Value="Red" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
 </Window>

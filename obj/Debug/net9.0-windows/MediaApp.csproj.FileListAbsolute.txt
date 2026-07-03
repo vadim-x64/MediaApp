@@ -26,6 +26,7 @@ D:\Documents\Projects\C#\MediaApp\bin\Debug\net9.0-windows\MediaApp.deps.json
 D:\Documents\Projects\C#\MediaApp\bin\Debug\net9.0-windows\MediaApp.runtimeconfig.json
 D:\Documents\Projects\C#\MediaApp\bin\Debug\net9.0-windows\MediaApp.dll
 D:\Documents\Projects\C#\MediaApp\bin\Debug\net9.0-windows\MediaApp.pdb
+D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\App.baml
 D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\AboutWindow.g.cs
 D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\MainWindow.g.cs
 D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\App.g.cs

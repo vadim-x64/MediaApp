@@ -84,8 +84,8 @@ public class MediaFile : INotifyPropertyChanged
         {
             return FileType switch
             {
-                MediaFileType.Image => "🖼️",
-                MediaFileType.Video => "🎬",
+                MediaFileType.Image => "🏜️",
+                MediaFileType.Video => "🎥️",
                 _ => "📄"
             };
         }
