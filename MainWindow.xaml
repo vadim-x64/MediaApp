@@ -9,7 +9,8 @@
         Background="#FFFFFF"
         mc:Ignorable="d"
         Title="MediaApp" Height="500" Width="800"
-        Icon="Resources/icon.ico">
+        Icon="Resources/icon.ico"
+        PreviewKeyDown="Window_PreviewKeyDown">
     
     <Grid Margin="0" MouseLeftButtonDown="Grid_MouseLeftButtonDown" Background="Transparent">
         <Grid.RowDefinitions>

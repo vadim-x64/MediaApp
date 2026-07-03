@@ -43,7 +43,7 @@ namespace MediaDuplicateDetector {
         /// InitializeComponent
         /// </summary>
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.5.0")]
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.9.0")]
         public void InitializeComponent() {
             
             #line 4 "..\..\..\App.xaml"
@@ -58,7 +58,7 @@ namespace MediaDuplicateDetector {
         /// </summary>
         [System.STAThreadAttribute()]
         [System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.5.0")]
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "10.0.9.0")]
         public static void Main() {
             MediaDuplicateDetector.App app = new MediaDuplicateDetector.App();
             app.InitializeComponent();

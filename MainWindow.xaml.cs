@@ -9,7 +9,7 @@ using MediaApp.Services;
 using MediaApp.ViewModels;
 using System.Globalization;
 using System.Windows.Data;
-using System.Windows.Media.Imaging;
+using System.Collections.Generic;
 
 namespace MediaApp
 {
@@ -177,23 +177,26 @@ namespace MediaApp
                 }
             }
         }
+        
+        private void SetDragOverlayVisibility(Visibility visibility)
+        {
+            if (FileListBox.Template.FindName("DragOverlay", FileListBox) is Border dragOverlay)
+            {
+                dragOverlay.Visibility = visibility;
+            }
+        }
 
         private void FileListBox_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                e.Effects = DragDropEffects.Copy;
-                ShowDragOverlay();
-            }
-            else
-            {
-                e.Effects = DragDropEffects.None;
+                SetDragOverlayVisibility(Visibility.Visible);
             }
         }
 
         private void FileListBox_DragLeave(object sender, DragEventArgs e)
         {
-            HideDragOverlay();
+            SetDragOverlayVisibility(Visibility.Collapsed);
         }
 
         private void FileListBox_DragOver(object sender, DragEventArgs e)
@@ -207,17 +210,93 @@ namespace MediaApp
                 e.Effects = DragDropEffects.None;
             }
         }
+        
+        private string[] GetFilesFromPaths(string[] paths)
+        {
+            var fileList = new List<string>();
+            
+            foreach (var path in paths)
+            {
+                if (File.Exists(path))
+                {
+                    fileList.Add(path);
+                }
+                else if (Directory.Exists(path))
+                {
+                    try
+                    {
+                        // Рекурсивно дістаємо всі файли з папки та її підпапок
+                        fileList.AddRange(Directory.GetFiles(path, "*.*", SearchOption.AllDirectories));
+                    }
+                    catch (UnauthorizedAccessException) 
+                    { 
+                        // Ігноруємо системні папки, до яких немає доступу
+                    }
+                }
+            }
+            return fileList.ToArray();
+        }
 
         private async void FileListBox_Drop(object sender, DragEventArgs e)
         {
-            HideDragOverlay();
-            
+            // ОДРАЗУ ховаємо зелену зону, щоб не залипала
+            SetDragOverlayVisibility(Visibility.Collapsed); 
+
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
-                var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files != null && files.Length > 0)
+                var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+                var allFiles = GetFilesFromPaths(paths); // Використовуємо метод, що ми додали минулого разу
+                
+                if (DataContext is ViewModels.MainWindowViewModel viewModel && allFiles.Length > 0)
                 {
-                    await _viewModel.LoadMediaFilesAsync(files);
+                    await viewModel.LoadMediaFilesAsync(allFiles);
+                }
+            }
+        }
+        
+        private async void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // Перевіряємо чи натиснуто саме CTRL + V
+            if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                var pathsToProcess = new List<string>();
+
+                // Варіант 1: Файли скопійовано класично (через Провідник Windows)
+                if (Clipboard.ContainsFileDropList())
+                {
+                    var fileDropList = Clipboard.GetFileDropList();
+                    foreach (string path in fileDropList)
+                    {
+                        pathsToProcess.Add(path);
+                    }
+                }
+                // Варіант 2: Файли скопійовано як текст (просто шляхи "C:\folder\file.jpg")
+                else if (Clipboard.ContainsText())
+                {
+                    var text = Clipboard.GetText();
+                    // Розбиваємо текст на рядки (на випадок, якщо скопійовано декілька шляхів)
+                    var lines = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var line in lines)
+                    {
+                        var cleanPath = line.Trim('\"', ' ', '\t'); // Прибираємо зайві лапки та пробіли
+                        if (File.Exists(cleanPath) || Directory.Exists(cleanPath))
+                        {
+                            pathsToProcess.Add(cleanPath);
+                        }
+                    }
+                }
+
+                if (pathsToProcess.Count > 0)
+                {
+                    // Зупиняємо подальшу передачу події (щоб інші елементи вікна не реагували на це натискання)
+                    e.Handled = true; 
+
+                    var allFiles = GetFilesFromPaths(pathsToProcess.ToArray());
+                    
+                    if (DataContext is ViewModels.MainWindowViewModel viewModel && allFiles.Length > 0)
+                    {
+                        await viewModel.LoadMediaFilesAsync(allFiles);
+                    }
                 }
             }
         }

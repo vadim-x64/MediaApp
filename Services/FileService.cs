@@ -7,8 +7,15 @@ namespace MediaApp.Services;
 public class FileService : IFileService
 {
     public event EventHandler<ProgressEventArgs> ProgressChanged;
-    private readonly string[] _supportedImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp" };
-    private readonly string[] _supportedVideoExtensions = { ".mp4", ".avi", ".mov", ".mkv", ".wmv", ".flv", ".webm", ".m4v" };
+    private readonly string[] _supportedImageExtensions = { 
+        ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".tif", ".webp", ".jfif", 
+        ".svg", ".heic", ".heif", ".raw", ".cr2", ".nef", ".arw", ".dng", ".ico" 
+    };
+
+    private readonly string[] _supportedVideoExtensions = { 
+        ".mp4", ".avi", ".mov", ".mkv", ".wmv", ".flv", ".webm", ".m4v", 
+        ".mpg", ".mpeg", ".m2v", ".ts", ".3gp", ".3g2", ".rm", ".vob" 
+    };
     
     public async Task<MediaFileLoadResult> LoadMediaFilesAsync(string[] filePaths)
     {

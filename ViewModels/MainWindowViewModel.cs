@@ -85,11 +85,20 @@ public class MainWindowViewModel : INotifyPropertyChanged
     private void UpdateButtonStates()
     {
         var hasFiles = MediaFiles?.Any() == true;
-        CanCheckDuplicates = hasFiles && !IsProcessing;
+
+        // Рахуємо кількість фото та відео окремо
+        var imageCount = MediaFiles?.Count(f => f.FileType == MediaFileType.Image) ?? 0;
+        var videoCount = MediaFiles?.Count(f => f.FileType == MediaFileType.Video) ?? 0;
+
+        // Кнопка перевірки активна ТІЛЬКИ якщо є мінімум 2 фото АБО мінімум 2 відео
+        bool canCompare = imageCount >= 2 || videoCount >= 2;
+
+        CanCheckDuplicates = canCompare && !IsProcessing;
         CanClearFiles = hasFiles && !IsProcessing;
         CanDeleteDuplicates =
             hasFiles && !IsProcessing &&
             MediaFiles.Any(f => f.IsDuplicate);
+            
         (DeleteDuplicatesCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
  
@@ -222,8 +231,9 @@ public class MainWindowViewModel : INotifyPropertyChanged
  
             if (duplicateCheckResult.HasIdenticalFiles)
             {
+                // Показуємо коротке повідомлення, додавши лише кількість таких файлів для інформативності
                 MessageBox.Show(
-                    $"Файли вже додано до списку:\n{string.Join("\n", duplicateCheckResult.IdenticalFiles)}",
+                    $"Деякі файли ({duplicateCheckResult.IdenticalFiles.Count} шт.) вже присутні у списку і не будуть додані повторно.",
                     "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
                 
                 if (duplicateCheckResult.FilesToProcess.Count == 0)
