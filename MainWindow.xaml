@@ -10,9 +10,12 @@
         mc:Ignorable="d"
         Title="MediaApp" Height="550" Width="850"
         Icon="Resources/icon.ico"
-        PreviewKeyDown="Window_PreviewKeyDown">
+        PreviewKeyDown="Window_PreviewKeyDown"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
 
     <Window.Resources>
+        <local:CircularProgressConverter x:Key="CircularProgressConverter" />
         <Style TargetType="ListBoxItem">
             <Setter Property="Background" Value="{StaticResource ThemeCardBg}" />
             <Setter Property="Padding" Value="12,8" />
@@ -36,6 +39,10 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{StaticResource ThemeBlue}" />
                     <Setter Property="BorderBrush" Value="{StaticResource ThemeBlueAccent}" />
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD" />
+                    <Setter Property="BorderBrush" Value="#64B5F6" />
                 </Trigger>
                 <DataTrigger Binding="{Binding IsDuplicate}" Value="True">
                     <Setter Property="Background" Value="{StaticResource DuplicateBg}" />
@@ -70,7 +77,11 @@
                           Command="{Binding DeleteDuplicatesCommand}"
                           IsEnabled="{Binding CanDeleteDuplicates}" />
                 <Separator />
-                <MenuItem x:Name="ClearMenuItem" Header="Очистити"
+                <MenuItem x:Name="DeleteAllFilesMenuItem" Header="Видалити всі файли (з диска)"
+                          Command="{Binding DeleteAllFilesCommand}"
+                          IsEnabled="{Binding CanClearFiles}" />
+                <Separator />
+                <MenuItem x:Name="ClearMenuItem" Header="Очистити список"
                           Click="ClearMenuItem_Click"
                           IsEnabled="{Binding CanClearFiles}" />
             </MenuItem>
@@ -81,6 +92,8 @@
 
         <ListBox Grid.Row="2"
                  x:Name="FileListBox"
+                 SelectionMode="Extended"
+                 SelectionChanged="FileListBox_SelectionChanged"
                  ItemsSource="{Binding MediaFiles}"
                  Background="Transparent"
                  BorderThickness="0"
@@ -126,9 +139,6 @@
                                     BorderThickness="2"
                                     CornerRadius="8"
                                     Visibility="Collapsed">
-                                <StackPanel HorizontalAlignment="Center"
-                                            VerticalAlignment="Center">
-                                </StackPanel>
                             </Border>
                         </Grid>
                     </Border>
@@ -151,35 +161,89 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0"
+                        <CheckBox Grid.Column="0" 
+                                  IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}"
+                                  VerticalAlignment="Center" 
+                                  Margin="0,0,10,0">
+                            <CheckBox.LayoutTransform>
+                                <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                            </CheckBox.LayoutTransform>
+                        </CheckBox>
+
+                        <TextBlock Grid.Column="1"
                                    Text="{Binding FileTypeIcon}"
                                    FontSize="16"
                                    VerticalAlignment="Center"
                                    Margin="0,0,15,0" />
 
-                        <TextBlock Grid.Column="1"
+                        <TextBlock Grid.Column="2"
                                    Text="{Binding FilePath}"
                                    FontSize="13"
                                    Foreground="{StaticResource TextPrimary}"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" />
 
-                        <Grid Grid.Column="2" VerticalAlignment="Center" Margin="10,0,0,0">
-                            <TextBlock x:Name="CopySuccessIndicator"
-                                       Text="✔️"
-                                       Foreground="{StaticResource ThemeBlueDark}"
-                                       FontSize="14"
-                                       FontWeight="Bold"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center"
-                                       Visibility="Collapsed" />
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <Grid Margin="0,0,5,0">
+                                <TextBlock x:Name="CopySuccessIndicator"
+                                           Text="✔️"
+                                           Foreground="{StaticResource ThemeBlueDark}"
+                                           FontSize="14"
+                                           FontWeight="Bold"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           Visibility="Collapsed" />
 
-                            <Button Content="📋"
-                                    ToolTip="Копіювати шлях"
+                                <Button Content="📋"
+                                        ToolTip="Копіювати шлях"
+                                        Foreground="{StaticResource TextSecondary}"
+                                        FontSize="14"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="5"
+                                        VerticalAlignment="Center"
+                                        Cursor="Hand"
+                                        Click="CopyPathButton_Click"
+                                        Tag="{Binding FilePath}">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Opacity" Value="0.3" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                            <ContentPresenter HorizontalAlignment="Center"
+                                                                              VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background"
+                                                                        Value="{StaticResource ThemeBlueAccent}" />
+                                                                <Setter Property="Foreground" Value="#FFFFFF" />
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver}"
+                                                    Value="True">
+                                                    <Setter Property="Opacity" Value="1" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </Grid>
+
+                            <Button Content="🗑️"
+                                    ToolTip="Видалити файл з диска"
                                     Foreground="{StaticResource TextSecondary}"
                                     FontSize="14"
                                     Background="Transparent"
@@ -187,8 +251,8 @@
                                     Padding="5"
                                     VerticalAlignment="Center"
                                     Cursor="Hand"
-                                    Click="CopyPathButton_Click"
-                                    Tag="{Binding FilePath}">
+                                    Click="DeleteSelectedFileButton_Click"
+                                    Tag="{Binding}">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Opacity" Value="0.3" />
@@ -196,41 +260,51 @@
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                                                        <ContentPresenter HorizontalAlignment="Center"
-                                                                          VerticalAlignment="Center" />
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background"
-                                                                    Value="{StaticResource ThemeBlueAccent}" />
-                                                            <Setter Property="Foreground" Value="#FFFFFF" />
+                                                            <Setter Property="Background" Value="#FFCDD2" />
+                                                            <Setter Property="Foreground" Value="#D32F2F" />
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
                                             </Setter.Value>
                                         </Setter>
                                         <Style.Triggers>
-                                            <DataTrigger
-                                                Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver}"
-                                                Value="True">
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver}" Value="True">
                                                 <Setter Property="Opacity" Value="1" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
-                        </Grid>
+                        </StackPanel>
                     </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <TextBlock Grid.Row="3"
-                   Text="{Binding FileCountText}"
-                   HorizontalAlignment="Center"
-                   FontSize="13"
-                   Foreground="{StaticResource TextSecondary}"
-                   Margin="10" />
+        <Grid Grid.Row="3" Margin="20,10,20,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" Text="{Binding FileCountText}" 
+                       FontSize="13" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" />
+
+            <Button Grid.Column="1" x:Name="MassDeleteButton" Content="🗑️ Видалити обрані" 
+                    Visibility="Collapsed" Click="MassDeleteButton_Click"
+                    Padding="15,6" Background="#FFEBEE" Foreground="#D32F2F" 
+                    BorderBrush="#FFCDD2" BorderThickness="1" Cursor="Hand" FontWeight="SemiBold">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="6"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </Grid>
 
         <StackPanel Grid.Row="4" Margin="20,5,20,10" Visibility="{Binding ProgressVisibility}">
             <TextBlock Text="{Binding ProgressText}"
@@ -275,5 +349,35 @@
                    HorizontalAlignment="Center"
                    Margin="20,0,20,15"
                    TextWrapping="Wrap" />
+
+        <Border Grid.Row="2" Grid.RowSpan="3" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,20"
+                Background="#2C3E50" BorderBrush="#34495E" BorderThickness="1" CornerRadius="22" Padding="15,6,6,6"
+                Visibility="{Binding CancelPanelVisibility}" Panel.ZIndex="100">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <TextBlock Text="{Binding CancelMessage}" Foreground="White" FontSize="14" 
+                           VerticalAlignment="Center" Margin="0,0,15,0" />
+
+                <Grid Width="30" Height="30" Margin="0,0,8,0">
+                    <Ellipse Stroke="#465A6E" StrokeThickness="3" Width="30" Height="30" />
+                    <Ellipse Stroke="#EF5350" StrokeThickness="3" Width="30" Height="30" 
+                             StrokeDashArray="{Binding CancelProgress, Converter={StaticResource CircularProgressConverter}}"
+                             StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5">
+                        <Ellipse.RenderTransform>
+                            <RotateTransform Angle="-90" />
+                        </Ellipse.RenderTransform>
+                    </Ellipse>
+                    <TextBlock Text="{Binding CancelCountdownText}" Foreground="White" FontSize="13" FontWeight="Bold" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+
+                <Button Command="{Binding CancelDeleteCommand}" 
+                        Background="Transparent" BorderThickness="0" Cursor="Hand" Width="30" Height="30">
+                    <TextBlock Text="✕" Foreground="#B0BEC5" FontSize="16" FontWeight="Bold" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Button>
+
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

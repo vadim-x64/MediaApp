@@ -45,3 +45,4 @@ D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\refint\MediaApp.dll
 D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\MediaApp.pdb
 D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\MediaApp.genruntimeconfig.cache
 D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\ref\MediaApp.dll
+D:\Documents\Projects\C#\MediaApp\obj\Debug\net9.0-windows\GeneratedInternalTypeHelper.g.cs

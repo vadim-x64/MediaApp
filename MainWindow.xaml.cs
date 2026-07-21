@@ -1,14 +1,15 @@
-﻿using System.Diagnostics;
-using System.IO;
-using Microsoft.Win32;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using MediaApp.Models;
+﻿using MediaApp.Models;
 using MediaApp.Services;
 using MediaApp.ViewModels;
+using Microsoft.Win32;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace MediaApp
 {
@@ -252,8 +253,42 @@ namespace MediaApp
             }
         }
 
+        private void FileListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (FileListBox.SelectedItems.Count > 0)
+            {
+                MassDeleteButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                MassDeleteButton.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private async void MassDeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            var selectedFiles = FileListBox.SelectedItems.Cast<MediaFile>().ToList();
+            await _viewModel.RequestDeleteAsync(selectedFiles);
+        }
+
+        private async void DeleteSelectedFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is MediaFile file)
+            {
+                await _viewModel.RequestDeleteAsync(new List<MediaFile> { file });
+            }
+        }
+
         private async void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Delete && FileListBox.SelectedItems.Count > 0)
+            {
+                e.Handled = true;
+                var selectedFiles = FileListBox.SelectedItems.Cast<MediaFile>().ToList();
+                await _viewModel.RequestDeleteAsync(selectedFiles);
+                return;
+            }
+
             if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
                 var pathsToProcess = new List<string>();
@@ -293,27 +328,6 @@ namespace MediaApp
                 }
             }
         }
-
-        private void ShowDragOverlay()
-        {
-            if (_dragOverlay == null)
-            {
-                _dragOverlay = FileListBox.Template.FindName("DragOverlay", FileListBox) as Border;
-            }
-
-            if (_dragOverlay != null)
-            {
-                _dragOverlay.Visibility = Visibility.Visible;
-            }
-        }
-
-        private void HideDragOverlay()
-        {
-            if (_dragOverlay != null)
-            {
-                _dragOverlay.Visibility = Visibility.Collapsed;
-            }
-        }
     }
 
     public class GreaterThanZeroConverter : IValueConverter
@@ -334,5 +348,21 @@ namespace MediaApp
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class CircularProgressConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is double progress)
+            {
+                double dashUnits = 28.274;
+                return new DoubleCollection { progress * dashUnits, 1000 };
+            }
+            return new DoubleCollection { 0, 1000 };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
     }
 }

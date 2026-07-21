@@ -29,7 +29,8 @@
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0-windows7.0": {
+          "net9.0-windows": {
+            "framework": "net9.0-windows7.0",
             "targetAlias": "net9.0-windows",
             "projectReferences": {}
           }
@@ -47,7 +48,8 @@
         "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
-        "net9.0-windows7.0": {
+        "net9.0-windows": {
+          "framework": "net9.0-windows7.0",
           "targetAlias": "net9.0-windows",
           "imports": [
             "net461",
@@ -68,7 +70,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.301/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

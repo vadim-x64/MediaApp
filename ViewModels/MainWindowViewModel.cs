@@ -1,7 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using MediaApp.Models;
@@ -11,7 +16,17 @@ namespace MediaApp.ViewModels;
 
 public class MainWindowViewModel : INotifyPropertyChanged
 {
+    private Visibility _cancelPanelVisibility = Visibility.Collapsed;
+    private double _cancelProgress;
+    private string _cancelCountdownText;
+    private string _cancelMessage;
+    private CancellationTokenSource _deleteCts;
+    private List<MediaFile> _filesPendingDeletion;
+
+    public ICommand CancelDeleteCommand { get; private set; }
     public ICommand DeleteDuplicatesCommand { get; private set; }
+    public ICommand DeleteAllFilesCommand { get; private set; }
+
     private readonly IFileService _fileService;
     private readonly IDuplicateDetector _duplicateDetector;
     private ObservableCollection<MediaFile> _mediaFiles;
@@ -43,20 +58,43 @@ public class MainWindowViewModel : INotifyPropertyChanged
         ProgressText = "Готово";
         ResultVisibility = Visibility.Collapsed;
         ResultTextColor = System.Windows.Media.Brushes.Green;
+
         _fileService.ProgressChanged += OnFileServiceProgressChanged;
         _duplicateDetector.ProgressChanged += OnDuplicateDetectorProgressChanged;
-        DeleteDuplicatesCommand =
-            new RelayCommand(async () => await ExecuteDeleteDuplicatesAsync(), () => CanDeleteDuplicates);
+
+        DeleteDuplicatesCommand = new RelayCommand(async () => await ExecuteDeleteDuplicatesAsync(), () => CanDeleteDuplicates);
+        DeleteAllFilesCommand = new RelayCommand(async () => await DeleteAllFilesAsync(), () => CanClearFiles);
+        CancelDeleteCommand = new RelayCommand(CancelDelete);
+    }
+
+    public Visibility CancelPanelVisibility
+    {
+        get => _cancelPanelVisibility;
+        set { _cancelPanelVisibility = value; OnPropertyChanged(); }
+    }
+
+    public double CancelProgress
+    {
+        get => _cancelProgress;
+        set { _cancelProgress = value; OnPropertyChanged(); }
+    }
+
+    public string CancelCountdownText
+    {
+        get => _cancelCountdownText;
+        set { _cancelCountdownText = value; OnPropertyChanged(); }
+    }
+
+    public string CancelMessage
+    {
+        get => _cancelMessage;
+        set { _cancelMessage = value; OnPropertyChanged(); }
     }
 
     public string FileCountText
     {
         get => _fileCountText;
-        set
-        {
-            _fileCountText = value;
-            OnPropertyChanged();
-        }
+        set { _fileCountText = value; OnPropertyChanged(); }
     }
 
     public ObservableCollection<MediaFile> MediaFiles
@@ -92,81 +130,52 @@ public class MainWindowViewModel : INotifyPropertyChanged
 
         CanCheckDuplicates = canCompare && !IsProcessing;
         CanClearFiles = hasFiles && !IsProcessing;
-        CanDeleteDuplicates =
-            hasFiles && !IsProcessing &&
-            MediaFiles.Any(f => f.IsDuplicate);
+        CanDeleteDuplicates = hasFiles && !IsProcessing && MediaFiles.Any(f => f.IsDuplicate);
 
         (DeleteDuplicatesCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        (DeleteAllFilesCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
 
     public bool CanDeleteDuplicates
     {
         get => _canDeleteDuplicates;
-        set
-        {
-            _canDeleteDuplicates = value;
-            OnPropertyChanged();
-        }
+        set { _canDeleteDuplicates = value; OnPropertyChanged(); }
     }
 
     public bool CanCheckDuplicates
     {
         get => _canCheckDuplicates;
-        set
-        {
-            _canCheckDuplicates = value;
-            OnPropertyChanged();
-        }
+        set { _canCheckDuplicates = value; OnPropertyChanged(); }
     }
 
     public bool CanClearFiles
     {
         get => _canClearFiles;
-        set
-        {
-            _canClearFiles = value;
-            OnPropertyChanged();
-        }
+        set { _canClearFiles = value; OnPropertyChanged(); }
     }
 
     public Visibility ProgressVisibility
     {
         get => _progressVisibility;
-        set
-        {
-            _progressVisibility = value;
-            OnPropertyChanged();
-        }
+        set { _progressVisibility = value; OnPropertyChanged(); }
     }
 
     public int ProgressValue
     {
         get => _progressValue;
-        set
-        {
-            _progressValue = value;
-            OnPropertyChanged();
-        }
+        set { _progressValue = value; OnPropertyChanged(); }
     }
 
     public string ProgressPercentageText
     {
         get => _progressPercentageText;
-        set
-        {
-            _progressPercentageText = value;
-            OnPropertyChanged();
-        }
+        set { _progressPercentageText = value; OnPropertyChanged(); }
     }
 
     public string ProgressText
     {
         get => _progressText;
-        set
-        {
-            _progressText = value;
-            OnPropertyChanged();
-        }
+        set { _progressText = value; OnPropertyChanged(); }
     }
 
     public bool IsProcessing
@@ -183,31 +192,19 @@ public class MainWindowViewModel : INotifyPropertyChanged
     public string ResultMessage
     {
         get => _resultMessage;
-        set
-        {
-            _resultMessage = value;
-            OnPropertyChanged();
-        }
+        set { _resultMessage = value; OnPropertyChanged(); }
     }
 
     public Visibility ResultVisibility
     {
         get => _resultVisibility;
-        set
-        {
-            _resultVisibility = value;
-            OnPropertyChanged();
-        }
+        set { _resultVisibility = value; OnPropertyChanged(); }
     }
 
     public System.Windows.Media.Brush ResultTextColor
     {
         get => _resultTextColor;
-        set
-        {
-            _resultTextColor = value;
-            OnPropertyChanged();
-        }
+        set { _resultTextColor = value; OnPropertyChanged(); }
     }
 
     public async Task LoadMediaFilesAsync(string[] filePaths)
@@ -367,9 +364,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     {
         if (!MediaFiles.Any(f => f.IsDuplicate))
         {
-            MessageBox.Show("Дублікати не виявлено", "Інформація", MessageBoxButton.OK,
-                MessageBoxImage.Information);
-
+            MessageBox.Show("Дублікати не виявлено", "Інформація", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
@@ -472,6 +467,107 @@ public class MainWindowViewModel : INotifyPropertyChanged
         }
     }
 
+    public async Task RequestDeleteAsync(List<MediaFile> filesToDelete)
+    {
+        if (filesToDelete == null || !filesToDelete.Any() || CancelPanelVisibility == Visibility.Visible || IsProcessing)
+            return;
+
+        // Додаємо вікно підтвердження перед запуском таймера
+        string confirmMessage = filesToDelete.Count == 1
+            ? $"Ви впевнені, що хочете назавжди видалити цей файл з диска?\n\n{filesToDelete.First().FilePath}"
+            : $"Ви впевнені, що хочете назавжди видалити обрані файли ({filesToDelete.Count} шт.) з диска?";
+
+        var confirmResult = MessageBox.Show(
+            confirmMessage,
+            "Підтвердження видалення",
+            MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+
+        if (confirmResult != MessageBoxResult.Yes)
+        {
+            return;
+        }
+
+        _filesPendingDeletion = filesToDelete.ToList();
+        _deleteCts = new CancellationTokenSource();
+
+        CancelMessage = _filesPendingDeletion.Count == 1
+            ? "Видалення 1 файлу..."
+            : $"Видалення файлів ({_filesPendingDeletion.Count})...";
+
+        CancelPanelVisibility = Visibility.Visible;
+
+        try
+        {
+            int totalDurationMs = 5000;
+            int stepMs = 50;
+
+            for (int i = totalDurationMs; i >= 0; i -= stepMs)
+            {
+                CancelProgress = (double)i / totalDurationMs;
+                CancelCountdownText = Math.Ceiling((double)i / 1000).ToString();
+                await Task.Delay(stepMs, _deleteCts.Token);
+            }
+
+            CancelPanelVisibility = Visibility.Collapsed;
+            await ExecuteDeletionAsync(_filesPendingDeletion);
+        }
+        catch (TaskCanceledException)
+        {
+            CancelPanelVisibility = Visibility.Collapsed;
+            _filesPendingDeletion = null;
+        }
+        finally
+        {
+            _deleteCts?.Dispose();
+            _deleteCts = null;
+        }
+    }
+
+    private void CancelDelete()
+    {
+        if (_deleteCts != null && !_deleteCts.IsCancellationRequested)
+        {
+            _deleteCts.Cancel();
+        }
+    }
+
+    private async Task ExecuteDeletionAsync(List<MediaFile> filesToDelete)
+    {
+        if (filesToDelete == null || !filesToDelete.Any()) return;
+
+        IsProcessing = true;
+        int deletedCount = 0;
+
+        foreach (var file in filesToDelete)
+        {
+            try
+            {
+                if (File.Exists(file.FilePath))
+                {
+                    _fileService.DeleteFile(file.FilePath);
+                    deletedCount++;
+                }
+                Application.Current.Dispatcher.Invoke(() => MediaFiles.Remove(file));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Помилка при видаленні файлу {file.FileName}: {ex.Message}");
+            }
+        }
+
+        UpdateFileCountText();
+        UpdateButtonStates();
+        IsProcessing = false;
+
+        if (deletedCount > 0)
+        {
+            ResultMessage = $"Успішно видалено файлів: {deletedCount}.";
+            ResultTextColor = System.Windows.Media.Brushes.Green;
+            ResultVisibility = Visibility.Visible;
+        }
+    }
+
     public void ClearFiles()
     {
         if (IsProcessing)
@@ -487,6 +583,81 @@ public class MainWindowViewModel : INotifyPropertyChanged
             UpdateFileCountText();
             UpdateButtonStates();
             ResultVisibility = Visibility.Collapsed;
+        }
+    }
+
+    private async Task DeleteAllFilesAsync()
+    {
+        if (!MediaFiles.Any() || IsProcessing) return;
+
+        var result = MessageBox.Show(
+            "Ви впевнені, що хочете НАЗАВЖДИ видалити ВСІ файли зі списку з диска?\nЦю дію неможливо відмінити!",
+            "УВАГА: Видалення всіх файлів", MessageBoxButton.YesNo, MessageBoxImage.Error);
+
+        if (result == MessageBoxResult.Yes)
+        {
+            try
+            {
+                IsProcessing = true;
+                ProgressVisibility = Visibility.Visible;
+                ProgressValue = 0;
+                ProgressPercentageText = "0%";
+                ProgressText = "Видалення файлів...";
+                ResultVisibility = Visibility.Collapsed;
+
+                var filesToDelete = MediaFiles.ToList();
+                int total = filesToDelete.Count;
+                int deleted = 0;
+                int manuallyDeleted = 0;
+
+                foreach (var file in filesToDelete)
+                {
+                    try
+                    {
+                        if (File.Exists(file.FilePath))
+                        {
+                            _fileService.DeleteFile(file.FilePath);
+                            deleted++;
+                        }
+                        else
+                        {
+                            manuallyDeleted++;
+                        }
+
+                        Application.Current.Dispatcher.Invoke(() => MediaFiles.Remove(file));
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Помилка при видаленні файлу {file.FileName}: {ex.Message}");
+                    }
+
+                    int processed = deleted + manuallyDeleted;
+                    ProgressValue = total > 0 ? (processed * 100) / total : 100;
+                    ProgressPercentageText = $"{ProgressValue}%";
+                    ProgressText = $"Видалення... ({processed}/{total})";
+                    await Task.Delay(10);
+                }
+
+                UpdateFileCountText();
+                UpdateButtonStates();
+
+                ProgressText = "Видалення завершено";
+                await Task.Delay(1000);
+                ProgressVisibility = Visibility.Collapsed;
+
+                ResultMessage = $"Успішно видалено файлів: {deleted}.";
+                ResultTextColor = System.Windows.Media.Brushes.Green;
+                ResultVisibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Помилка при видаленні файлів: {ex.Message}",
+                    "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsProcessing = false;
+            }
         }
     }
 
