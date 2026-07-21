@@ -16,6 +16,27 @@ namespace MediaApp.ViewModels;
 
 public class MainWindowViewModel : INotifyPropertyChanged
 {
+    private bool _isGridView = false;
+
+    // Властивість для режиму Плитки
+    public bool IsGridView
+    {
+        get => _isGridView;
+        set
+        {
+            _isGridView = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsListView)); // Оновлюємо залежну властивість
+        }
+    }
+
+    // Властивість для режиму Списку (протилежність Плитки)
+    public bool IsListView
+    {
+        get => !_isGridView;
+        set { IsGridView = !value; }
+    }
+
     private Visibility _cancelPanelVisibility = Visibility.Collapsed;
     private double _cancelProgress;
     private string _cancelCountdownText;
@@ -23,6 +44,7 @@ public class MainWindowViewModel : INotifyPropertyChanged
     private CancellationTokenSource _deleteCts;
     private List<MediaFile> _filesPendingDeletion;
 
+    public ICommand RefreshListCommand { get; private set; }
     public ICommand CancelDeleteCommand { get; private set; }
     public ICommand DeleteDuplicatesCommand { get; private set; }
     public ICommand DeleteAllFilesCommand { get; private set; }
@@ -65,6 +87,8 @@ public class MainWindowViewModel : INotifyPropertyChanged
         DeleteDuplicatesCommand = new RelayCommand(async () => await ExecuteDeleteDuplicatesAsync(), () => CanDeleteDuplicates);
         DeleteAllFilesCommand = new RelayCommand(async () => await DeleteAllFilesAsync(), () => CanClearFiles);
         CancelDeleteCommand = new RelayCommand(CancelDelete);
+        // Додай цей рядок поруч з ініціалізацією інших команд:
+        RefreshListCommand = new RelayCommand(RefreshList, () => !IsProcessing && MediaFiles?.Any() == true);
     }
 
     public Visibility CancelPanelVisibility
@@ -134,6 +158,8 @@ public class MainWindowViewModel : INotifyPropertyChanged
 
         (DeleteDuplicatesCommand as RelayCommand)?.RaiseCanExecuteChanged();
         (DeleteAllFilesCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        // Додай в кінець методу UpdateButtonStates():
+        (RefreshListCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
 
     public bool CanDeleteDuplicates
@@ -686,5 +712,34 @@ public class MainWindowViewModel : INotifyPropertyChanged
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void RefreshList()
+    {
+        if (IsProcessing || MediaFiles == null || !MediaFiles.Any()) return;
+
+        // Шукаємо файли, які фізично відсутні на диску
+        var missingFiles = MediaFiles.Where(f => !File.Exists(f.FilePath)).ToList();
+
+        if (missingFiles.Any())
+        {
+            foreach (var file in missingFiles)
+            {
+                MediaFiles.Remove(file);
+            }
+
+            UpdateFileCountText();
+            UpdateButtonStates();
+
+            ResultMessage = $"Список оновлено. Вилучено відсутніх файлів: {missingFiles.Count}.";
+            ResultTextColor = System.Windows.Media.Brushes.Green;
+            ResultVisibility = Visibility.Visible;
+        }
+        else
+        {
+            ResultMessage = "Список актуальний. Всі файли на місці.";
+            ResultTextColor = System.Windows.Media.Brushes.Green;
+            ResultVisibility = Visibility.Visible;
+        }
     }
 }

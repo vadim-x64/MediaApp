@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource ThemeBg}"
         mc:Ignorable="d"
-        Title="MediaApp" Height="550" Width="850"
+        Title="MediaApp" Height="550" Width="870"
         Icon="Resources/icon.ico"
         PreviewKeyDown="Window_PreviewKeyDown"
         UseLayoutRounding="True"
@@ -17,6 +17,7 @@
     <Window.Resources>
         <local:CircularProgressConverter x:Key="CircularProgressConverter" />
         <Style TargetType="ListBoxItem">
+            
             <Setter Property="Background" Value="{StaticResource ThemeCardBg}" />
             <Setter Property="Padding" Value="12,8" />
             <Setter Property="Margin" Value="5,3" />
@@ -24,6 +25,7 @@
             <Setter Property="BorderBrush" Value="#E0E0E0" />
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}" />
             <Setter Property="Template">
+
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
                         <Border Background="{TemplateBinding Background}"
@@ -36,6 +38,10 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsGridView, RelativeSource={RelativeSource AncestorType=ListBox}}" Value="True">
+                    <Setter Property="Padding" Value="6" />
+                    <Setter Property="Margin" Value="4" />
+                </DataTrigger>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{StaticResource ThemeBlue}" />
                     <Setter Property="BorderBrush" Value="{StaticResource ThemeBlueAccent}" />
@@ -62,33 +68,89 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Menu Grid.Row="1" Background="Transparent" Margin="5,5,5,10">
-            <MenuItem Header="Файл" Foreground="{StaticResource TextPrimary}">
-                <MenuItem x:Name="OpenMenuItem" Header="Відкрити" Click="SelectFilesButton_Click" />
-                <Separator />
-                <MenuItem Header="Вийти" Click="ExitMenuItem_Click" />
-            </MenuItem>
-            <MenuItem Header="Інструменти" Foreground="{StaticResource TextPrimary}">
-                <MenuItem x:Name="CheckDuplicatesMenuItem" Header="Перевірити"
-                          Click="CheckDuplicatesButton_Click"
-                          IsEnabled="{Binding CanCheckDuplicates}" />
-                <Separator />
-                <MenuItem x:Name="DeleteDuplicatesMenuItem" Header="Видалити дублікати"
-                          Command="{Binding DeleteDuplicatesCommand}"
-                          IsEnabled="{Binding CanDeleteDuplicates}" />
-                <Separator />
-                <MenuItem x:Name="DeleteAllFilesMenuItem" Header="Видалити всі файли (з диска)"
-                          Command="{Binding DeleteAllFilesCommand}"
-                          IsEnabled="{Binding CanClearFiles}" />
-                <Separator />
-                <MenuItem x:Name="ClearMenuItem" Header="Очистити список"
-                          Click="ClearMenuItem_Click"
-                          IsEnabled="{Binding CanClearFiles}" />
-            </MenuItem>
-            <MenuItem Header="Довідка" Foreground="{StaticResource TextPrimary}">
-                <MenuItem Header="Про програму" Click="AboutMenuItem_Click" />
-            </MenuItem>
-        </Menu>
+        <Grid Grid.Row="1" Margin="5,5,5,10">
+            <!-- Ліва частина: твоє меню -->
+            <Menu Background="Transparent" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <MenuItem Header="Файл" Foreground="{StaticResource TextPrimary}">
+                    <MenuItem x:Name="OpenMenuItem" Header="Відкрити" Click="SelectFilesButton_Click" />
+                    <Separator />
+                    <MenuItem Header="Вийти" Click="ExitMenuItem_Click" />
+                </MenuItem>
+                <MenuItem Header="Інструменти" Foreground="{StaticResource TextPrimary}">
+                    <MenuItem x:Name="CheckDuplicatesMenuItem" Header="Перевірити"
+                      Click="CheckDuplicatesButton_Click"
+                      IsEnabled="{Binding CanCheckDuplicates}" />
+                    <Separator />
+                    <MenuItem x:Name="DeleteDuplicatesMenuItem" Header="Видалити дублікати"
+                      Command="{Binding DeleteDuplicatesCommand}"
+                      IsEnabled="{Binding CanDeleteDuplicates}" />
+                    <Separator />
+                    <MenuItem x:Name="DeleteAllFilesMenuItem" Header="Видалити всі файли (з диска)"
+                      Command="{Binding DeleteAllFilesCommand}"
+                      IsEnabled="{Binding CanClearFiles}" />
+                    <Separator />
+                    <MenuItem x:Name="ClearMenuItem" Header="Очистити список"
+                      Click="ClearMenuItem_Click"
+                      IsEnabled="{Binding CanClearFiles}" />
+                </MenuItem>
+                <MenuItem Header="Довідка" Foreground="{StaticResource TextPrimary}">
+                    <MenuItem Header="Про програму" Click="AboutMenuItem_Click" />
+                </MenuItem>
+            </Menu>
+
+            <!-- Права частина: Керування виглядом та оновлення -->
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,10,0">
+
+                <!-- Перемикачі вигляду -->
+                <Border Background="{StaticResource ThemeCardBg}" BorderBrush="#E9ECEF" BorderThickness="1" CornerRadius="6" Margin="0,0,15,0" Padding="2">
+                    <StackPanel Orientation="Horizontal">
+                        <!-- Використовуємо Style="{StaticResource {x:Type ToggleButton}}" щоб RadioButton виглядав як стильна кнопка-таба -->
+                        <RadioButton Content="📄 Список" 
+                         IsChecked="{Binding IsListView}" 
+                         Style="{StaticResource {x:Type ToggleButton}}"
+                         Background="Transparent" BorderThickness="0" Padding="8,4" FontSize="12" Cursor="Hand"/>
+                        <RadioButton Content="🔲 Плитка" 
+                         IsChecked="{Binding IsGridView}" 
+                         Style="{StaticResource {x:Type ToggleButton}}"
+                         Background="Transparent" BorderThickness="0" Padding="8,4" FontSize="12" Cursor="Hand"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Кнопка оновлення -->
+                <Button Command="{Binding RefreshListCommand}"
+            ToolTip="Перевірити наявність файлів на диску та оновити список"
+            Cursor="Hand"
+            Background="Transparent" BorderThickness="0" Foreground="{StaticResource TextSecondary}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔄" FontSize="14" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Оновити" FontSize="13" VerticalAlignment="Center" FontWeight="Medium"/>
+                    </StackPanel>
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Opacity" Value="0.7"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Setter Property="Foreground" Value="{StaticResource ThemeBlueDark}"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.3"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
+        </Grid>
 
         <ListBox Grid.Row="2"
                  x:Name="FileListBox"
@@ -156,8 +218,8 @@
                 </ControlTemplate>
             </ListBox.Template>
 
-            <ListBox.ItemTemplate>
-                <DataTemplate>
+            <ListBox.Resources>
+                <DataTemplate x:Key="ListViewTemplate">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -167,49 +229,49 @@
                         </Grid.ColumnDefinitions>
 
                         <CheckBox Grid.Column="0" 
-                                  IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}"
-                                  VerticalAlignment="Center" 
-                                  Margin="0,0,10,0">
+                      IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}"
+                      VerticalAlignment="Center" 
+                      Margin="0,0,10,0">
                             <CheckBox.LayoutTransform>
                                 <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
                             </CheckBox.LayoutTransform>
                         </CheckBox>
 
                         <TextBlock Grid.Column="1"
-                                   Text="{Binding FileTypeIcon}"
-                                   FontSize="16"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,15,0" />
+                       Text="{Binding FileTypeIcon}"
+                       FontSize="16"
+                       VerticalAlignment="Center"
+                       Margin="0,0,15,0" />
 
                         <TextBlock Grid.Column="2"
-                                   Text="{Binding FilePath}"
-                                   FontSize="13"
-                                   Foreground="{StaticResource TextPrimary}"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" />
+                       Text="{Binding FilePath}"
+                       FontSize="13"
+                       Foreground="{StaticResource TextPrimary}"
+                       VerticalAlignment="Center"
+                       TextTrimming="CharacterEllipsis" />
 
                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
                             <Grid Margin="0,0,5,0">
                                 <TextBlock x:Name="CopySuccessIndicator"
-                                           Text="✔️"
-                                           Foreground="{StaticResource ThemeBlueDark}"
-                                           FontSize="14"
-                                           FontWeight="Bold"
-                                           VerticalAlignment="Center"
-                                           HorizontalAlignment="Center"
-                                           Visibility="Collapsed" />
+                               Text="✔️"
+                               Foreground="{StaticResource ThemeBlueDark}"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Visibility="Collapsed" />
 
                                 <Button Content="📋"
-                                        ToolTip="Копіювати шлях"
-                                        Foreground="{StaticResource TextSecondary}"
-                                        FontSize="14"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Padding="5"
-                                        VerticalAlignment="Center"
-                                        Cursor="Hand"
-                                        Click="CopyPathButton_Click"
-                                        Tag="{Binding FilePath}">
+                            ToolTip="Копіювати шлях"
+                            Foreground="{StaticResource TextSecondary}"
+                            FontSize="14"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="5"
+                            VerticalAlignment="Center"
+                            Cursor="Hand"
+                            Click="CopyPathButton_Click"
+                            Tag="{Binding FilePath}">
                                     <Button.Style>
                                         <Style TargetType="Button">
                                             <Setter Property="Opacity" Value="0.3" />
@@ -218,12 +280,12 @@
                                                     <ControlTemplate TargetType="Button">
                                                         <Border Background="{TemplateBinding Background}" CornerRadius="4">
                                                             <ContentPresenter HorizontalAlignment="Center"
-                                                                              VerticalAlignment="Center" />
+                                                                  VerticalAlignment="Center" />
                                                         </Border>
                                                         <ControlTemplate.Triggers>
                                                             <Trigger Property="IsMouseOver" Value="True">
                                                                 <Setter Property="Background"
-                                                                        Value="{StaticResource ThemeBlueAccent}" />
+                                                            Value="{StaticResource ThemeBlueAccent}" />
                                                                 <Setter Property="Foreground" Value="#FFFFFF" />
                                                             </Trigger>
                                                         </ControlTemplate.Triggers>
@@ -232,8 +294,8 @@
                                             </Setter>
                                             <Style.Triggers>
                                                 <DataTrigger
-                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver}"
-                                                    Value="True">
+                                        Binding="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsMouseOver}"
+                                        Value="True">
                                                     <Setter Property="Opacity" Value="1" />
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -243,16 +305,16 @@
                             </Grid>
 
                             <Button Content="🗑️"
-                                    ToolTip="Видалити файл з диска"
-                                    Foreground="{StaticResource TextSecondary}"
-                                    FontSize="14"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Padding="5"
-                                    VerticalAlignment="Center"
-                                    Cursor="Hand"
-                                    Click="DeleteSelectedFileButton_Click"
-                                    Tag="{Binding}">
+                        ToolTip="Видалити файл з диска"
+                        Foreground="{StaticResource TextSecondary}"
+                        FontSize="14"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="5"
+                        VerticalAlignment="Center"
+                        Cursor="Hand"
+                        Click="DeleteSelectedFileButton_Click"
+                        Tag="{Binding}">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Opacity" Value="0.3" />
@@ -282,7 +344,77 @@
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
-            </ListBox.ItemTemplate>
+
+                <DataTemplate x:Key="GridViewTemplate">
+                    <Grid Width="140" Height="160">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" Margin="0,0,0,5">
+                            <CheckBox HorizontalAlignment="Left" VerticalAlignment="Center"
+                          IsChecked="{Binding RelativeSource={RelativeSource AncestorType=ListBoxItem}, Path=IsSelected}">
+                                <CheckBox.LayoutTransform>
+                                    <ScaleTransform ScaleX="1.2" ScaleY="1.2"/>
+                                </CheckBox.LayoutTransform>
+                            </CheckBox>
+                            <Button HorizontalAlignment="Right" Content="🗑️" ToolTip="Видалити"
+                        Background="Transparent" BorderThickness="0" Foreground="#D32F2F" Cursor="Hand" Padding="2"
+                        Click="DeleteSelectedFileButton_Click" Tag="{Binding}" />
+                        </Grid>
+
+                        <Border Grid.Row="1" Background="#F0F2F5" CornerRadius="6" ClipToBounds="True">
+                            <Grid>
+                                <TextBlock Text="{Binding FileTypeIcon}" FontSize="48"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+
+                                <Image Stretch="UniformToFill" Source="{Binding FilePath, IsAsync=True}" RenderOptions.BitmapScalingMode="LowQuality">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding FileType}" Value="Image">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </Grid>
+                        </Border>
+
+                        <TextBlock Grid.Row="2" Text="{Binding FileName}" FontSize="12" Foreground="{StaticResource TextPrimary}"
+                       TextTrimming="CharacterEllipsis" TextAlignment="Center" ToolTip="{Binding FileName}" Margin="0,5,0,0" />
+                    </Grid>
+                </DataTemplate>
+            </ListBox.Resources>
+
+            <ListBox.Style>
+                <Style TargetType="ListBox">
+                    <Setter Property="ItemTemplate" Value="{StaticResource ListViewTemplate}" />
+                    <Setter Property="ItemsPanel">
+                        <Setter.Value>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel IsVirtualizing="True" VirtualizationMode="Recycling" />
+                            </ItemsPanelTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsGridView}" Value="True">
+                            <Setter Property="ItemTemplate" Value="{StaticResource GridViewTemplate}" />
+                            <Setter Property="ItemsPanel">
+                                <Setter.Value>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.Style>
         </ListBox>
 
         <Grid Grid.Row="3" Margin="20,10,20,5">
